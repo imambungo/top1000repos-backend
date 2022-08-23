@@ -17,20 +17,14 @@ var cron = require('node-cron');
 
 let task1 = cron.schedule('* * * * *', () => {
     console.log('running a task 1 every minute');
-}, {
-    scheduled: false
 });
 
-let task2 = cron.schedule('* * * * *', () => {
-    console.log('running another task 2 every minute');
-});
 
-server.get('/start-task1', (req, res) => {
-    res.send('starting task 1')
-    task1.start()
-})
+// https://www.npmjs.com/package/node-fetch
+const fetch = require('node-fetch') // november 2022 bisa pake node 18, native fetch
 
-server.get('/stop-task2', (req, res) => {
-    res.send('stopping task 2')
-    task2.stop()
+server.get('/a', async (req, res) => {
+    const response = await fetch('https://api.github.com/search/repositories?q=stars%3A%3E18000&sort=stars&page=1&per_page=100');
+    const data = await response.json();
+    res.send(data)
 })
