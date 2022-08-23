@@ -15,7 +15,7 @@ server.listen(port, () => {
 // https://www.npmjs.com/package/node-cron
 var cron = require('node-cron');
 
-let task1 = cron.schedule('* * * * *', () => {
+let task1 = cron.schedule('* * * * *', () => { // 0 12 15 * *
     console.log('running a task 1 every minute');
 });
 
@@ -26,5 +26,6 @@ const fetch = require('node-fetch') // november 2022 bisa pake node 18, native f
 server.get('/a', async (req, res) => {
     const response = await fetch('https://api.github.com/search/repositories?q=stars%3A%3E18000&sort=stars&page=1&per_page=100');
     const data = await response.json();
-    res.send(data)
+    const full_name = data.items[0].full_name
+    res.send(full_name) // data (json) bisa jg
 })
