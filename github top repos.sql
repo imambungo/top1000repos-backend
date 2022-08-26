@@ -1,4 +1,6 @@
-/* exported from dbdiagram.io */
+-- exported from dbdiagram.io
+-- important! don't use serial: https://stackoverflow.com/a/73496296/9157799
+-- modify the generated file first! https://community.dbdiagram.io/t/auto-increment-field/75/6?u=imambungo
 CREATE TABLE "repository" (
   "id" int PRIMARY KEY,
   "full_name" varchar UNIQUE NOT NULL,
