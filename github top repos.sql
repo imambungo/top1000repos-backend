@@ -24,7 +24,7 @@ CREATE TABLE "repository_topic_mapping" (
 );
 
 CREATE TABLE "tag" (
-  "id" int PRIMARY KEY,
+  "id" SERIAL PRIMARY KEY,
   "name" varchar UNIQUE NOT NULL
 );
 
