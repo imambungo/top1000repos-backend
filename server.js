@@ -21,7 +21,7 @@ let task1 = cron.schedule('* * * * *', () => { // 0 12 15 * *
 
 
 // https://www.npmjs.com/package/node-fetch
-import fetch from 'node-fetch'; // november 2022 bisa pake node 18, native fetch
+//import fetch from 'node-fetch'; // november 2022 bisa pake node 18, native fetch
 
 server.get('/a', async (req, res) => {
     const response = await fetch('https://api.github.com/search/repositories?q=stars%3A%3E18000&sort=stars&page=1&per_page=100');
