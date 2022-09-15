@@ -26,7 +26,7 @@ server.get('/a', async (req, res) => {
     let repo = data.items[index]
     updateOrInsertRepo(repo)
 
-    res.send(full_name) // data (json) bisa jg
+    res.send('okey')
 })
 
 const fetchRepos = async (page) => {
@@ -45,6 +45,20 @@ const updateOrInsertRepo = async (repo) => {
     const stargazers_count = repo.stargazers_count
     const license_key = repo.license.key
     const last_verified_at = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
+
+    await sql`
+        INSERT INTO repository
+            VALUES (${id}, ${full_name}, ${owner_avatar_url}, ${html_url}, ${description}, ${last_commit_date}, ${stargazers_count}, ${license_key}, ${last_verified_at})
+        ON CONFLICT (id) DO UPDATE
+            SET full_name = ${full_name},
+                owner_avatar_url = ${owner_avatar_url},
+                html_url = ${html_url},
+                description = ${description},
+                last_commit_date = ${last_commit_date},
+                stargazers_count = ${stargazers_count},
+                license_key = ${license_key},
+                last_verified_at = ${last_verified_at};
+    ` // https://stackoverflow.com/a/1109198/9157799
 }
 
 // https://github.com/porsager/postgres#usage
