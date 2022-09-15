@@ -22,10 +22,10 @@ let task1 = cron.schedule('* * * * *', () => { // 0 12 15 * *
 
 server.get('/a', async (req, res) => {
     const data = await fetchRepos(1)
-    let index = 0
-    let repo = data.items[index]
-    updateOrInsertRepo(repo)
-
+    for (let i = 0; i < 100; i++) { // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
+        const repo = data.items[i]
+        updateOrInsertRepo(repo)
+    }
     res.send('okey')
 })
 
@@ -43,7 +43,7 @@ const updateOrInsertRepo = async (repo) => {
     const description = repo.description
     const last_commit_date = repo.pushed_at.slice(0, 10) // slice 2022-09-14 from 2022-09-14T23:19:32Z
     const stargazers_count = repo.stargazers_count
-    const license_key = repo.license.key
+    const license_key = repo.license ? repo.license.key : null
     const last_verified_at = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
 
     await sql`
