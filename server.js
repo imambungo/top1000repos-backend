@@ -20,9 +20,6 @@ let task1 = cron.schedule('* * * * *', () => { // 0 12 15 * *
 });
 
 
-// https://www.npmjs.com/package/node-fetch
-//import fetch from 'node-fetch'; // november 2022 bisa pake node 18, native fetch
-
 server.get('/a', async (req, res) => {
     const data = await fetchRepos(1)
     let index = 0
@@ -50,6 +47,5 @@ const updateOrInsertRepo = async (repo) => {
     const last_verified_at = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
 }
 
-
 // https://github.com/porsager/postgres#usage
-import sql from './db.js'
+import sql from './db.js' // db.js is not version controlled
