@@ -13,6 +13,7 @@
     "express": "^4.18.1",
     "node-cron": "^3.0.2",
     "node-fetch": "^2.6.7",
-    "postgres": "^3.2.4"
+    "postgres": "^3.2.4",
+    "prompt-sync": "^4.2.0"
   }
 }
