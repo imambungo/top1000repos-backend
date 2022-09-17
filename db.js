@@ -11,6 +11,6 @@ const sql = postgres({ // https://github.com/porsager/postgres#postgresurl-optio
 
 password = '' // leave no trace ;)
 
-await sql`SELECT 1;` // if the password is wrong, throw error as early as possible. Postgres.js doesn't check the validity of the options right away.
+await sql`SELECT 1;` // if the password is wrong, throw error as early as possible. Postgres.js doesn't check the validity of the options right away. | https://stackoverflow.com/a/3670000/9157799
 
 export default sql
