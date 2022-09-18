@@ -6,7 +6,7 @@ CREATE TABLE "repository" (
   "full_name" varchar UNIQUE NOT NULL,
   "owner_avatar_url" varchar,
   "html_url" varchar UNIQUE NOT NULL,
-  "description" varchar NOT NULL,
+  "description" varchar,
   "last_commit_date" DATE,
   "stargazers_count" int NOT NULL,
   "license_key" varchar,
