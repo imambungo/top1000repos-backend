@@ -15,19 +15,18 @@ server.listen(port, () => {
 // https://www.npmjs.com/package/node-cron
 import cron from 'node-cron';
 
-let task1 = cron.schedule('* * * * *', () => { // 0 12 15 * *
-    console.log('running a task 1 every minute');
+// fetch repos. 1 fetch per minute, 1 page (100 repos) per fetch.
+let task1 = cron.schedule('* * * * *', async () => { // 0 12 15 * *
+	const minute = new Date().getMinutes(); // google "js get minute"
+	const page = minute % 10 + 1
+	const data = await fetchRepos(page)
+	for (let i = 0; i < 100; i++) { // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
+		const repo = data.items[i]
+		updateOrInsertRepo(repo)
+	}
+	console.log(`page ${page}`);
 });
 
-
-server.get('/a', async (req, res) => {
-    const data = await fetchRepos(1)
-    for (let i = 0; i < 100; i++) { // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
-        const repo = data.items[i]
-        updateOrInsertRepo(repo)
-    }
-    res.send('okey')
-})
 
 const fetchRepos = async (page) => {
     const response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`);
