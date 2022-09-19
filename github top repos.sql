@@ -10,7 +10,8 @@ CREATE TABLE "repository" (
   "last_commit_date" DATE,
   "stargazers_count" int NOT NULL,
   "license_key" varchar,
-  "last_verified_at" DATE NOT NULL
+  "last_verified_at" DATE NOT NULL,
+  "issue_per_star_ratio" real NOT NULL
 );
 
 CREATE TABLE "topic" (
