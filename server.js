@@ -45,10 +45,11 @@ const updateOrInsertRepo = async (repo) => {
 	const license_key = repo.license ? repo.license.key : null
 	const last_verified_at = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
 	const issue_per_star_ratio = repo.open_issues_count / repo.stargazers_count
+	const open_issues_count = repo.open_issues_count
 
 	await sql`
 		INSERT INTO repository
-			VALUES (${id}, ${full_name}, ${owner_avatar_url}, ${html_url}, ${description}, ${last_commit_date}, ${stargazers_count}, ${license_key}, ${last_verified_at}, ${issue_per_star_ratio})
+			VALUES (${id}, ${full_name}, ${owner_avatar_url}, ${html_url}, ${description}, ${last_commit_date}, ${stargazers_count}, ${license_key}, ${last_verified_at}, ${issue_per_star_ratio}, ${open_issues_count})
 		ON CONFLICT (id) DO UPDATE
 			SET full_name = ${full_name},
 				owner_avatar_url = ${owner_avatar_url},
@@ -58,7 +59,8 @@ const updateOrInsertRepo = async (repo) => {
 				stargazers_count = ${stargazers_count},
 				license_key = ${license_key},
 				last_verified_at = ${last_verified_at},
-				issue_per_star_ratio = ${issue_per_star_ratio};
+				issue_per_star_ratio = ${issue_per_star_ratio},
+				open_issues_count = ${open_issues_count};
 	` // https://stackoverflow.com/a/1109198/9157799
 }
 
