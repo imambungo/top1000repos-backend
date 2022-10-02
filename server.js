@@ -59,8 +59,6 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			const data = await fetchPR(repo_number)
 			console.log('cc')
 		}
-	} else {
-		console.log('nope')
 	}
 });
 
