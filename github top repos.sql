@@ -47,17 +47,21 @@ CREATE TABLE "monthly_stars" (
 
 CREATE TABLE "closed_pr" (
   "repository_id" int,
-  "id" int,
-  "closed_date" DATE NOT NULL,
+  "number" int,
+  "html_url" varchar NOT NULL,
+  "title" varchar NOT NULL,
   "thumbs_up" int NOT NULL,
-  PRIMARY KEY ("repository_id", "id")
+  "closed_date" DATE NOT NULL,
+  PRIMARY KEY ("repository_id", "number")
 );
 
 CREATE TABLE "open_issue" (
   "repository_id" int,
-  "id" int,
+  "number" int,
+  "html_url" varchar NOT NULL,
+  "title" varchar NOT NULL,
   "thumbs_up" int NOT NULL,
-  PRIMARY KEY ("repository_id", "id")
+  PRIMARY KEY ("repository_id", "number")
 );
 
 CREATE TABLE "parent_child_mapping" (
@@ -76,6 +80,12 @@ CREATE TABLE "alternatives_mapping" (
   "repository_id" int,
   "alternative_id" int,
   PRIMARY KEY ("repository_id", "alternative_id")
+);
+
+CREATE TABLE "fetch_task" (
+  "name" varchar PRIMARY KEY,
+  "start_date" DATE DEFAULT '2000-01-01',
+  "daily_count" int DEFAULT 0
 );
 
 ALTER TABLE "repository_topic_mapping" ADD FOREIGN KEY ("repository_id") REFERENCES "repository" ("id") ON DELETE CASCADE;

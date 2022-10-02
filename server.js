@@ -15,8 +15,13 @@ server.listen(port, () => {
 // https://www.npmjs.com/package/node-cron
 import cron from 'node-cron';
 
+let fetch_quota = 10 // fetch quota per minute
+let task1 = cron.schedule('* * * * *', () => {
+	fetch_quota = 10
+});
+
 // fetch repos. 1 fetch per minute, 1 page (100 repos) per fetch.
-let task1 = cron.schedule('* * * * *', async () => { // 0 12 15 * *
+let task2 = cron.schedule('* * * * *', async () => { // 0 12 15 * *
 	const minute = new Date().getMinutes(); // google "js get minute"
 	const page = minute % 10 + 1
 	const data = await fetchRepos(page)
