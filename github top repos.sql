@@ -82,10 +82,9 @@ CREATE TABLE "alternatives_mapping" (
   PRIMARY KEY ("repository_id", "alternative_id")
 );
 
-CREATE TABLE "fetch_task" (
+CREATE TABLE "standalone_data" (
   "name" varchar PRIMARY KEY,
-  "start_date" DATE DEFAULT '2000-01-01',
-  "daily_count" int DEFAULT 0
+  "value" varchar NOT NULL
 );
 
 ALTER TABLE "repository_topic_mapping" ADD FOREIGN KEY ("repository_id") REFERENCES "repository" ("id") ON DELETE CASCADE;
