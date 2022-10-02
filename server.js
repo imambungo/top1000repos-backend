@@ -20,7 +20,7 @@ let task1 = cron.schedule('* * * * *', () => {
 	fetch_quota = 10
 });
 
-let task23 = cron.schedule('*/4 * * * * *', async () => { // every 4 seconds | https://stackoverflow.com/a/59800039/9157799
+let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | https://stackoverflow.com/a/59800039/9157799
 	if (fetch_quota > 0) {
 		const standalone_data = await sql`
 			SELECT * FROM standalone_data;
@@ -42,15 +42,15 @@ let task23 = cron.schedule('*/4 * * * * *', async () => { // every 4 seconds | h
 			`
 		} else if (repo_daily_fetch_count < 10) {
 			const page_to_fetch = repo_daily_fetch_count + 1
-			console.log(page_to_fetch)
+			process.stdout.write('fetching..')
 			const data = await fetchRepos(page_to_fetch)
+			process.stdout.write('..fetched\n')
 			for (let i = 0; i < 100; i++) { // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
 				const repo = data.items[i] // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
 				updateOrInsertRepo(repo)
 			}
 			await sql`
-				UPDATE standalone_data SET value = value::int + 1
-				                       WHERE name = 'repo_daily_fetch_count';
+				UPDATE standalone_data SET value = value::int + 1 WHERE name = 'repo_daily_fetch_count';
 			` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
 			fetch_quota--
 			console.log(`fetched repos (page ${page_to_fetch})`);
@@ -61,6 +61,8 @@ let task23 = cron.schedule('*/4 * * * * *', async () => { // every 4 seconds | h
 			const data = await fetchPR(repo_number)
 			console.log('cc')
 		}
+	} else {
+		console.log('nope')
 	}
 });
 
