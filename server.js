@@ -40,7 +40,6 @@ let task23 = cron.schedule('*/4 * * * * *', async () => { // every 4 seconds | h
 			await sql`
 				UPDATE standalone_data SET value = ${today} WHERE name = 'server_last_active_date';
 			`
-			console.log('aa')
 		} else if (repo_daily_fetch_count < 10) {
 			const page_to_fetch = repo_daily_fetch_count + 1
 			console.log(page_to_fetch)
