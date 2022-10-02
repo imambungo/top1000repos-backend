@@ -25,7 +25,7 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 		const standalone_data = await sql`
 			SELECT * FROM standalone_data;
 		`
-		const server_last_active_date        = standalone_data.find(o => o.name == 'server_last_active_date').value
+		const server_last_active_date      = standalone_data.find(o => o.name == 'server_last_active_date').value
 		let repo_daily_fetch_count         = standalone_data.find(o => o.name == 'repo_daily_fetch_count').value // https://stackoverflow.com/a/35397839/9157799
 		let top_5_pr_daily_fetch_count     = standalone_data.find(o => o.name == 'top_5_pr_daily_fetch_count').value
 		let top_5_issues_daily_fetch_count = standalone_data.find(o => o.name == 'top_5_issues_daily_fetch_count').value
@@ -39,12 +39,10 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			`
 			await sql`
 				UPDATE standalone_data SET value = ${today} WHERE name = 'server_last_active_date';
-			`
+			` // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
 		} else if (repo_daily_fetch_count < 10) {
 			const page_to_fetch = repo_daily_fetch_count + 1
-			process.stdout.write('fetching..')
 			const data = await fetchRepos(page_to_fetch)
-			process.stdout.write('..fetched\n')
 			for (let i = 0; i < 100; i++) { // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
 				const repo = data.items[i] // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
 				updateOrInsertRepo(repo)
