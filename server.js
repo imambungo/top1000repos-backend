@@ -20,16 +20,38 @@ let task1 = cron.schedule('* * * * *', () => {
 	fetch_quota = 10
 });
 
+let task23 = cron.schedule('*/4 * * * * *', async () => { // every 4 seconds | https://stackoverflow.com/a/59800039/9157799
+	if (fetch_quota > 0) {
+		const fetch_tasks = await sql`
+			SELECT * FROM fetch_task;
+		`
+		const today = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
+		const repo_fetch_task         = fetch_tasks.find(x => x.name == 'repo') // https://stackoverflow.com/a/35397839/9157799
+		const top_5_pr_fetch_task     = fetch_tasks.find(x => x.name == 'top 5 pr')
+		const top_5_issues_fetch_task = fetch_tasks.find(x => x.name == 'top 5 issues')
+		if (repo_fetch_task.start_date != today) {
+			await sql`
+				UPDATE fetch_task SET start_date = ${today}, daily_count = 0
+					               WHERE name = 'repo';
+			`
+		} else if (repo_fetch_task.start_date == today && repo_fetch_task.daily_count < 10) {
+			const page_to_fetch = repo_fetch_task.daily_count + 1
+			const data = await fetchRepos(page_to_fetch)
+			for (let i = 0; i < 100; i++) { // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
+				const repo = data.items[i] // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
+				updateOrInsertRepo(repo)
+			}
+			fetch_quota--
+			console.log(`fetched repos (page ${page})`);
+			// TODO: if (page_to_fetch == 10) clearOutdatedRepo()
+		}
+	}
+});
+
 // fetch repos. 1 fetch per minute, 1 page (100 repos) per fetch.
 let task2 = cron.schedule('* * * * *', async () => { // 0 12 15 * *
 	const minute = new Date().getMinutes(); // google "js get minute"
 	const page = minute % 10 + 1
-	const data = await fetchRepos(page)
-	for (let i = 0; i < 100; i++) { // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
-		const repo = data.items[i]
-		updateOrInsertRepo(repo)
-	}
-	console.log(`page ${page}`);
 });
 
 
