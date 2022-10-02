@@ -49,14 +49,12 @@ let task23 = cron.schedule('*/4 * * * * *', async () => { // every 4 seconds | h
 				const repo = data.items[i] // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
 				updateOrInsertRepo(repo)
 			}
-			console.log('mo sql')
 			await sql`
 				UPDATE standalone_data SET value = value::int + 1
 				                       WHERE name = 'repo_daily_fetch_count';
 			` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
-			console.log('done sql')
 			fetch_quota--
-			console.log(`fetched repos (page ${page})`);
+			console.log(`fetched repos (page ${page_to_fetch})`);
 			// TODO: if (page_to_fetch == 10) clearOutdatedRepo()
 		} else if (top_5_pr_daily_fetch_count < 1000) {
 			console.log('c')
