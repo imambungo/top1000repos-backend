@@ -29,12 +29,12 @@ let task23 = cron.schedule('*/4 * * * * *', async () => { // every 4 seconds | h
 		const repo_fetch_task         = fetch_tasks.find(x => x.name == 'repo') // https://stackoverflow.com/a/35397839/9157799
 		const top_5_pr_fetch_task     = fetch_tasks.find(x => x.name == 'top 5 pr')
 		const top_5_issues_fetch_task = fetch_tasks.find(x => x.name == 'top 5 issues')
-		if (repo_fetch_task.start_date != today) {
+		if (stupid_row.server_last_active_date != today) {
 			await sql`
-				UPDATE fetch_task SET start_date = ${today}, daily_count = 0
-					               WHERE name = 'repo';
+				UPDATE fetch_task SET daily_count = 0;
+				UPDATE stupid_table SET server_last_active_date = ${today};
 			`
-		} else if (repo_fetch_task.start_date == today && repo_fetch_task.daily_count < 10) {
+		} else if (repo_fetch_task.daily_count < 10) {
 			const page_to_fetch = repo_fetch_task.daily_count + 1
 			const data = await fetchRepos(page_to_fetch)
 			for (let i = 0; i < 100; i++) { // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
@@ -44,6 +44,8 @@ let task23 = cron.schedule('*/4 * * * * *', async () => { // every 4 seconds | h
 			fetch_quota--
 			console.log(`fetched repos (page ${page})`);
 			// TODO: if (page_to_fetch == 10) clearOutdatedRepo()
+		} else if (top_5_pr_fetch_task.start_date == today && top_5_pr_fetch_task.daily_count < 1000) {
+			const repo_number = top_5_pr_fetch_task.daily_count + 1
 		}
 	}
 });
