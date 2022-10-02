@@ -1,6 +1,6 @@
 import prompt_sync from 'prompt-sync' // https://github.com/heapwolf/prompt-sync
 const prompt = prompt_sync() // https://stackoverflow.com/q/48593254/9157799
-let password = prompt.hide('db password? ') // https://github.com/heapwolf/prompt-sync#prompthideask
+let password = prompt.hide('db user password? ') // https://github.com/heapwolf/prompt-sync#prompthideask
 
 import postgres from 'postgres' // https://github.com/porsager/postgres
 const sql = postgres({ // https://github.com/porsager/postgres#postgresurl-options
