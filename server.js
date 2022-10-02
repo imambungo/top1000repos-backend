@@ -22,45 +22,60 @@ let task1 = cron.schedule('* * * * *', () => {
 
 let task23 = cron.schedule('*/4 * * * * *', async () => { // every 4 seconds | https://stackoverflow.com/a/59800039/9157799
 	if (fetch_quota > 0) {
-		const fetch_tasks = await sql`
-			SELECT * FROM fetch_task;
+		const standalone_data = await sql`
+			SELECT * FROM standalone_data;
 		`
+		const server_last_active_date        = standalone_data.find(o => o.name == 'server_last_active_date').value
+		let repo_daily_fetch_count         = standalone_data.find(o => o.name == 'repo_daily_fetch_count').value // https://stackoverflow.com/a/35397839/9157799
+		let top_5_pr_daily_fetch_count     = standalone_data.find(o => o.name == 'top_5_pr_daily_fetch_count').value
+		let top_5_issues_daily_fetch_count = standalone_data.find(o => o.name == 'top_5_issues_daily_fetch_count').value
+		repo_daily_fetch_count         = parseInt(repo_daily_fetch_count)
+		top_5_pr_daily_fetch_count     = parseInt(top_5_pr_daily_fetch_count)
+		top_5_issues_daily_fetch_count = parseInt(top_5_issues_daily_fetch_count)
 		const today = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
-		const repo_fetch_task         = fetch_tasks.find(x => x.name == 'repo') // https://stackoverflow.com/a/35397839/9157799
-		const top_5_pr_fetch_task     = fetch_tasks.find(x => x.name == 'top 5 pr')
-		const top_5_issues_fetch_task = fetch_tasks.find(x => x.name == 'top 5 issues')
-		if (stupid_row.server_last_active_date != today) {
+		if (server_last_active_date != today) {
 			await sql`
-				UPDATE fetch_task SET daily_count = 0;
-				UPDATE stupid_table SET server_last_active_date = ${today};
+				UPDATE standalone_data SET value = '0' WHERE name != 'server_last_active_date';
 			`
-		} else if (repo_fetch_task.daily_count < 10) {
-			const page_to_fetch = repo_fetch_task.daily_count + 1
+			await sql`
+				UPDATE standalone_data SET value = ${today} WHERE name = 'server_last_active_date';
+			`
+			console.log('aa')
+		} else if (repo_daily_fetch_count < 10) {
+			const page_to_fetch = repo_daily_fetch_count + 1
+			console.log(page_to_fetch)
 			const data = await fetchRepos(page_to_fetch)
 			for (let i = 0; i < 100; i++) { // https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
 				const repo = data.items[i] // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
 				updateOrInsertRepo(repo)
 			}
+			console.log('mo sql')
+			await sql`
+				UPDATE standalone_data SET value = value::int + 1
+				                       WHERE name = 'repo_daily_fetch_count';
+			` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
+			console.log('done sql')
 			fetch_quota--
 			console.log(`fetched repos (page ${page})`);
 			// TODO: if (page_to_fetch == 10) clearOutdatedRepo()
-		} else if (top_5_pr_fetch_task.start_date == today && top_5_pr_fetch_task.daily_count < 1000) {
-			const repo_number = top_5_pr_fetch_task.daily_count + 1
+		} else if (top_5_pr_daily_fetch_count < 1000) {
+			console.log('c')
+			const repo_number = top_5_pr_daily_fetch_count + 1
+			const data = await fetchPR(repo_number)
+			console.log('cc')
 		}
 	}
 });
-
-// fetch repos. 1 fetch per minute, 1 page (100 repos) per fetch.
-let task2 = cron.schedule('* * * * *', async () => { // 0 12 15 * *
-	const minute = new Date().getMinutes(); // google "js get minute"
-	const page = minute % 10 + 1
-});
-
 
 const fetchRepos = async (page) => {
 	const response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`);
 	const data = await response.json();
 	return data
+}
+
+const fetchPR = async (repo_number) => {
+	console.log('oi')
+
 }
 
 const updateOrInsertRepo = async (repo) => {
