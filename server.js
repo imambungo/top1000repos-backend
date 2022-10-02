@@ -72,7 +72,18 @@ const fetchRepos = async (page) => {
 
 const fetchPR = async (repo_number) => {
 	console.log('oi')
+	const repo_full_name = getRepoFullName(repo_number)
+}
 
+const getRepoFullName = async (repo_number) => {
+	const [{ full_name }] = await sql`
+		SELECT full_name
+			FROM (
+				SELECT row_number() OVER (ORDER BY stargazers_count DESC), full_name FROM repository
+			) as stupid_alias
+			WHERE row_number = ${repo_number};
+	` // https://github.com/porsager/postgres#usage
+	return full_name
 }
 
 const updateOrInsertRepo = async (repo) => {
