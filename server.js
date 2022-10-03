@@ -22,9 +22,7 @@ let task1 = cron.schedule('* * * * *', () => {
 
 let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | https://stackoverflow.com/a/59800039/9157799
 	if (fetch_quota > 0) {
-		const standalone_data = await sql`
-			SELECT * FROM standalone_data;
-		`
+		const standalone_data = await sql`SELECT * FROM standalone_data;`
 		const server_last_active_date      = standalone_data.find(o => o.name == 'server_last_active_date').value
 		let repo_daily_fetch_count         = standalone_data.find(o => o.name == 'repo_daily_fetch_count').value // https://stackoverflow.com/a/35397839/9157799
 		let top_5_pr_daily_fetch_count     = standalone_data.find(o => o.name == 'top_5_pr_daily_fetch_count').value
@@ -34,12 +32,8 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 		top_5_issues_daily_fetch_count = parseInt(top_5_issues_daily_fetch_count)
 		const today = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
 		if (server_last_active_date != today) {
-			await sql`
-				UPDATE standalone_data SET value = '0' WHERE name != 'server_last_active_date';
-			`
-			await sql`
-				UPDATE standalone_data SET value = ${today} WHERE name = 'server_last_active_date';
-			` // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
+			await sql`UPDATE standalone_data SET value = '0' WHERE name != 'server_last_active_date';`
+			await sql`UPDATE standalone_data SET value = ${today} WHERE name = 'server_last_active_date';` // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
 		} else if (repo_daily_fetch_count < 10) {
 			const page_to_fetch = repo_daily_fetch_count + 1
 			const data = await fetchRepos(page_to_fetch)
@@ -47,16 +41,16 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 				const repo = data.items[i] // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
 				updateOrInsertRepo(repo)
 			}
-			await sql`
-				UPDATE standalone_data SET value = value::int + 1 WHERE name = 'repo_daily_fetch_count';
-			` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
+			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'repo_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
 			fetch_quota--
 			console.log(`fetched repos (page ${page_to_fetch})`);
 			// TODO: if (page_to_fetch == 10) clearOutdatedRepo()
 		} else if (top_5_pr_daily_fetch_count < 1000) {
-			console.log('c')
 			const repo_number = top_5_pr_daily_fetch_count + 1
-			const data = await fetchPR(repo_number)
+			const repo_full_name = getRepoFullName(repo_number)
+			const data = await fetchTop5PR(repo_full_name)
+			// delete current PRs of <full_name>
+			// insert data, associate it with <full_name>
 			console.log('cc')
 		}
 	}
@@ -66,22 +60,6 @@ const fetchRepos = async (page) => {
 	const response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`);
 	const data = await response.json();
 	return data
-}
-
-const fetchPR = async (repo_number) => {
-	console.log('oi')
-	const repo_full_name = getRepoFullName(repo_number)
-}
-
-const getRepoFullName = async (repo_number) => {
-	const [{ full_name }] = await sql` -- https://github.com/porsager/postgres#usage
-		SELECT full_name
-			FROM (
-				SELECT row_number() OVER (ORDER BY stargazers_count DESC), full_name FROM repository
-			) as stupid_alias  -- https://stackoverflow.com/q/14767209/9157799#comment56350360_14767216
-			WHERE row_number = ${repo_number};
-	`
-	return full_name
 }
 
 const updateOrInsertRepo = async (repo) => {
@@ -112,6 +90,28 @@ const updateOrInsertRepo = async (repo) => {
 				issue_per_star_ratio = ${issue_per_star_ratio},
 				open_issues_count = ${open_issues_count};
 	` // https://stackoverflow.com/a/1109198/9157799
+}
+
+const getRepoFullName = async (repo_number) => {
+	const [{ full_name }] = await sql` -- https://github.com/porsager/postgres#usage
+		SELECT full_name
+			FROM (
+				SELECT row_number() OVER (ORDER BY stargazers_count DESC), full_name FROM repository
+			) as stupid_alias  -- https://stackoverflow.com/q/14767209/9157799#comment56350360_14767216
+			WHERE row_number = ${repo_number};
+	`
+	return full_name
+}
+
+const fetchTop5PR = async (repo_full_name) => { // fetch top 5 closed PR of the last 365 days
+	const aYearAgo = () => {
+		const date = new Date()
+		date.setDate(date.getDate() - 365) // https://stackoverflow.com/a/13838662/9157799
+		return date.toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
+	}
+	const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E${aYearAgo()}%20repo:${repo_full_name}`)
+	const data = await response.json()
+	return data
 }
 
 // https://github.com/porsager/postgres#usage
