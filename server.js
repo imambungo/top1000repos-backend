@@ -39,7 +39,7 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			const data = await fetchRepos(page_to_fetch)
 			for (let i = 0; i < 100; i++) { // max item per page | https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
 				const repo = data.items[i] // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
-				updateOrInsertRepo(repo)
+				upsertRepo(repo)
 			}
 			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'repo_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
 			fetch_quota--
@@ -66,7 +66,7 @@ const fetchRepos = async (page) => {
 	return data
 }
 
-const updateOrInsertRepo = async (repo) => {
+const upsertRepo = async (repo) => {
 	const { id, full_name, html_url, description, stargazers_count, open_issues_count } = repo
 	const issue_per_star_ratio = open_issues_count / stargazers_count
 	const license_key = repo.license ? repo.license.key : null
