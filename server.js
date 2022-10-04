@@ -49,7 +49,11 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			const repo_number = top_5_pr_daily_fetch_count + 1
 			const repo_full_name = getRepoFullName(repo_number)
 			const data = await fetchTop5PR(repo_full_name)
-			// delete current PRs of <full_name>
+			await sql`
+				DELETE FROM closed_pr WHERE repository_id = (
+					SELECT id FROM repository WHERE full_name = ${repo_full_name}
+				)
+			` // delete current PRs of <full_name>
 			// insert data, associate it with <full_name>
 			console.log('cc')
 		}
