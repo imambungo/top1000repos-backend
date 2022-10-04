@@ -63,17 +63,12 @@ const fetchRepos = async (page) => {
 }
 
 const updateOrInsertRepo = async (repo) => {
-	const id = repo.id
-	const full_name = repo.full_name
-	const owner_avatar_url = repo.owner.avatar_url
-	const html_url = repo.html_url
-	const description = repo.description
-	const last_commit_date = repo.pushed_at.slice(0, 10) // slice 2022-09-14 from 2022-09-14T23:19:32Z
-	const stargazers_count = repo.stargazers_count
+	const { id, full_name, html_url, description, stargazers_count, open_issues_count } = repo
+	const issue_per_star_ratio = open_issues_count / stargazers_count
 	const license_key = repo.license ? repo.license.key : null
+	const last_commit_date = repo.pushed_at.slice(0, 10) // slice 2022-09-14 from 2022-09-14T23:19:32Z
+	const owner_avatar_url = repo.owner.avatar_url
 	const last_verified_at = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
-	const issue_per_star_ratio = repo.open_issues_count / repo.stargazers_count
-	const open_issues_count = repo.open_issues_count
 
 	await sql`
 		INSERT INTO repository
