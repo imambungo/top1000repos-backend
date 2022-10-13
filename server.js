@@ -114,4 +114,4 @@ const fetchTop5PR = async (repo_full_name) => { // fetch top 5 closed PR of the 
 }
 
 // https://github.com/porsager/postgres#usage
-import sql from './db.js' // db.js is not version controlled
+import sql from './db.js'
