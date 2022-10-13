@@ -49,12 +49,12 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			const repo_number = top_5_pr_daily_fetch_count + 1
 			const repo_full_name = getRepoFullName(repo_number)
 			const data = await fetchTop5PR(repo_full_name)
-			await sql`
-				DELETE FROM closed_pr WHERE repository_id = (
-					SELECT id FROM repository WHERE full_name = ${repo_full_name}
-				)
-			` // delete current PRs of <full_name>
-			// insert data, associate it with <full_name>
+			const [{ id: repository_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
+			await sql`DELETE FROM closed_pr WHERE repository_id = ${repository_id}` // delete current PRs of <repo_full_name>
+			for (let i = 0; i < 5; i++) {
+				const pr = data.items[i] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E2022-01-25%20repo:flutter/flutter
+				insertPR(pr, repository_id)
+			}
 			console.log('cc')
 		}
 	}
@@ -111,6 +111,13 @@ const fetchTop5PR = async (repo_full_name) => { // fetch top 5 closed PR of the 
 	const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E${aYearAgo()}%20repo:${repo_full_name}`)
 	const data = await response.json()
 	return data
+}
+
+const insertPR = async (pr, repository_id) => {
+	const { number, html_url, title } = pr
+	const thumbs_up = pr.reactions['+1'] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E2022-01-25%20repo:flutter/flutter
+	const closed_date = pr.closed_at.slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
+	await sql`INSERT INTO closed_pr VALUES (${repository_id}, ${number}, ${html_url}, ${title}, ${thumbs_up})`
 }
 
 // https://github.com/porsager/postgres#usage
