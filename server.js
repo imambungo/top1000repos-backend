@@ -48,7 +48,7 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			// TODO: if (page_to_fetch == 10) clearOutdatedRepo()
 		} else if (top_5_pr_daily_fetch_count < 1000) { // fetch top 5 pr
 			const repo_number = top_5_pr_daily_fetch_count + 1
-			const repo_full_name = getRepoFullName(repo_number)
+			const repo_full_name = await getRepoFullName(repo_number)
 			const data = await fetchTop5PR(repo_full_name)
 			fetch_quota--
 			const [{ id: repository_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
@@ -58,7 +58,7 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 				insertPR(pr, repository_id)
 			}
 			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'top_5_pr_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
-			console.log(`fetched top 5 pr (repo ${repo_number}`)
+			console.log(`fetched top 5 pr (repo ${repo_number})`)
 		}
 	}
 });
@@ -120,5 +120,5 @@ const insertPR = async (pr, repository_id) => {
 	const { number, html_url, title } = pr
 	const thumbs_up = pr.reactions['+1'] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E2022-01-25%20repo:flutter/flutter
 	const closed_date = pr.closed_at.slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
-	await sql`INSERT INTO closed_pr VALUES (${repository_id}, ${number}, ${html_url}, ${title}, ${thumbs_up})`
+	await sql`INSERT INTO closed_pr VALUES (${repository_id}, ${number}, ${html_url}, ${title}, ${thumbs_up}, ${closed_date})`
 }
