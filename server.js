@@ -3,12 +3,12 @@ import express from 'express' // dk usah pake require: https://github.com/porsag
 const server = express()
 const port = 3000
 
-server.get('/', (req, res) => {
-	res.send('Hello World!')
-})
-
 server.listen(port, () => {
 	console.log(`server listening on port ${port} (localhost:${port})`)
+})
+
+server.get('/', (req, res) => {
+	res.send('Hello World!')
 })
 
 
