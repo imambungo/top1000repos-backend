@@ -31,31 +31,33 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 		top_5_pr_daily_fetch_count     = parseInt(top_5_pr_daily_fetch_count)
 		top_5_issues_daily_fetch_count = parseInt(top_5_issues_daily_fetch_count)
 		const today = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
-		if (server_last_active_date != today) {
+		if (server_last_active_date != today) { // reset all daily_fetch_count to 0 and set server_last_active_date to today
 			await sql`UPDATE standalone_data SET value = '0' WHERE name != 'server_last_active_date';`
 			await sql`UPDATE standalone_data SET value = ${today} WHERE name = 'server_last_active_date';` // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
-		} else if (repo_daily_fetch_count < 10) {
+		} else if (repo_daily_fetch_count < 10) { // fetch repos
 			const page_to_fetch = repo_daily_fetch_count + 1
 			const data = await fetchRepos(page_to_fetch)
+			fetch_quota--
 			for (let i = 0; i < 100; i++) { // max item per page | https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
 				const repo = data.items[i] // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
 				upsertRepo(repo)
 			}
 			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'repo_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
-			fetch_quota--
 			console.log(`fetched repos (page ${page_to_fetch})`);
 			// TODO: if (page_to_fetch == 10) clearOutdatedRepo()
-		} else if (top_5_pr_daily_fetch_count < 1000) {
+		} else if (top_5_pr_daily_fetch_count < 1000) { // fetch top 5 pr
 			const repo_number = top_5_pr_daily_fetch_count + 1
 			const repo_full_name = getRepoFullName(repo_number)
 			const data = await fetchTop5PR(repo_full_name)
+			fetch_quota--
 			const [{ id: repository_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
 			await sql`DELETE FROM closed_pr WHERE repository_id = ${repository_id}` // delete current PRs of <repo_full_name>
 			for (let i = 0; i < 5; i++) {
 				const pr = data.items[i] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E2022-01-25%20repo:flutter/flutter
 				insertPR(pr, repository_id)
 			}
-			console.log('cc')
+			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'top_5_pr_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
+			console.log(`fetched top 5 pr (repo ${repo_number}`)
 		}
 	}
 });
