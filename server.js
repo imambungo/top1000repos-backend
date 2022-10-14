@@ -53,7 +53,9 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			fetch_quota--
 			const [{ id: repository_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
 			await sql`DELETE FROM closed_pr WHERE repository_id = ${repository_id}` // delete current PRs of <repo_full_name>
-			for (let i = 0; i < 5; i++) {
+			let num_of_pr = 5
+			if (data.items.length < 5) num_of_pr = data.items.length
+			for (let i = 0; i < num_of_pr; i++) {
 				const pr = data.items[i] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E2022-01-25%20repo:flutter/flutter
 				insertPR(pr, repository_id)
 			}
