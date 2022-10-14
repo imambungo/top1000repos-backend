@@ -12,13 +12,14 @@ server.get('/', (req, res) => {
 })
 
 
-// https://www.npmjs.com/package/node-cron
-import cron from 'node-cron';
+import cron from 'node-cron' // https://www.npmjs.com/package/node-cron
 
 let fetch_quota = 10 // fetch quota per minute
-let task1 = cron.schedule('* * * * *', () => {
+let task1 = cron.schedule('* * * * *', () => { // every minute, reset fetch quota
 	fetch_quota = 10
 });
+
+import sql from './db.js' // https://github.com/porsager/postgres#usage
 
 let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | https://stackoverflow.com/a/59800039/9157799
 	if (fetch_quota > 0) {
@@ -121,6 +122,3 @@ const insertPR = async (pr, repository_id) => {
 	const closed_date = pr.closed_at.slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
 	await sql`INSERT INTO closed_pr VALUES (${repository_id}, ${number}, ${html_url}, ${title}, ${thumbs_up})`
 }
-
-// https://github.com/porsager/postgres#usage
-import sql from './db.js'
