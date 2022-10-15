@@ -74,6 +74,8 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 				const issue = data.items[i] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:flutter/flutter
 				insertIssue(issue, repository_id)
 			}
+			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'top_5_issues_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
+			console.log(`fetched top 5 issue (repo ${repo_number})`)
 		}
 	}
 });
