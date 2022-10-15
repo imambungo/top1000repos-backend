@@ -78,6 +78,12 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 	}
 });
 
+const insertIssue = async (issue, repository_id) => {
+	const { number, html_url, title } = issue
+	const thumbs_up = pr.reactions['+1'] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:flutter/flutter
+	await sql`INSERT INTO open_issue VALUES (${repository_id}, ${number}, ${html_url}, ${title}, ${thumbs_up})`
+}
+
 const fetchTop5Issue = async (repo_full_name) => { // fetch top 5 open issues of all time
 	const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:${repo_full_name}`)
 	const data = await response.json()
