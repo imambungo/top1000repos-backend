@@ -52,9 +52,9 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			const data = await fetchTop5PR(repo_full_name)
 			G_fetch_quota--
 			const [{ id: repository_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
-			await sql`DELETE FROM closed_pr WHERE repository_id = ${repository_id}` // delete current PRs of <repo_full_name>
+			await sql`DELETE FROM closed_pr WHERE repository_id = ${repository_id}` // delete previous top 5 PRs of <repo_full_name>
 			let num_of_pr = 5
-			if (data.items.length < 5) num_of_pr = data.items.length
+			if (data.items.length < 5) num_of_pr = data.items.length // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/length
 			for (let i = 0; i < num_of_pr; i++) {
 				const pr = data.items[i] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E2022-01-25%20repo:flutter/flutter
 				insertPR(pr, repository_id)
@@ -65,6 +65,15 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			const repo_number = top_5_issues_daily_fetch_count + 1
 			const repo_full_name = await getRepoFullName(repo_number)
 			const data = await fetchTop5Issue(repo_full_name)
+			G_fetch_quota--
+			const [{ id: repository_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
+			await sql`DELETE FROM open_issue WHERE repository_id = ${repository_id}` // delete previous top 5 open issues of <repo_full_name>
+			let num_of_issues = 5
+			if (data.items.length < 5) num_of_issues = data.items.length // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/length
+			for (let i = 0; i < num_of_issues; i++) {
+				const issue = data.items[i] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:flutter/flutter
+				insertIssue(issue, repository_id)
+			}
 		}
 	}
 });
