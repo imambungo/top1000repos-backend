@@ -61,9 +61,19 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			}
 			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'top_5_pr_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
 			console.log(`fetched top 5 pr (repo ${repo_number})`)
+		} else if (top_5_issues_daily_fetch_count < 1000) { // fetch top 5 issues and stuff
+			const repo_number = top_5_issues_daily_fetch_count + 1
+			const repo_full_name = await getRepoFullName(repo_number)
+			const data = await fetchTop5Issue(repo_full_name)
 		}
 	}
 });
+
+const fetchTop5Issue = async (repo_full_name) => { // fetch top 5 open issues of all time
+	const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:${repo_full_name}`)
+	const data = await response.json()
+	return data
+}
 
 const fetchRepos = async (page) => {
 	const response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`);
