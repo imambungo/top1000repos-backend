@@ -82,7 +82,7 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 
 const insertIssue = async (issue, repository_id) => {
 	const { number, html_url, title } = issue
-	const thumbs_up = pr.reactions['+1'] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:flutter/flutter
+	const thumbs_up = issue.reactions['+1'] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:flutter/flutter
 	await sql`INSERT INTO open_issue VALUES (${repository_id}, ${number}, ${html_url}, ${title}, ${thumbs_up})`
 }
 
