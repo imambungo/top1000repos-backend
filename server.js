@@ -14,15 +14,15 @@ server.get('/', (req, res) => {
 
 import cron from 'node-cron' // https://www.npmjs.com/package/node-cron
 
-let fetch_quota = 10 // fetch quota per minute
+let g_fetchQuota = 10 // fetch quota per minute
 let task1 = cron.schedule('* * * * *', () => { // every minute, reset fetch quota
-	fetch_quota = 10
+	g_fetchQuota = 10
 });
 
 import sql from './db.js' // https://github.com/porsager/postgres#usage
 
 let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | https://stackoverflow.com/a/59800039/9157799
-	if (fetch_quota > 0) {
+	if (g_fetchQuota > 0) {
 		const standalone_data = await sql`SELECT * FROM standalone_data;`
 		const server_last_active_date      = standalone_data.find(o => o.name == 'server_last_active_date').value
 		let repo_daily_fetch_count         = standalone_data.find(o => o.name == 'repo_daily_fetch_count').value // https://stackoverflow.com/a/35397839/9157799
@@ -38,7 +38,7 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 		} else if (repo_daily_fetch_count < 10) { // fetch repos
 			const page_to_fetch = repo_daily_fetch_count + 1
 			const data = await fetchRepos(page_to_fetch)
-			fetch_quota--
+			g_fetchQuota--
 			for (let i = 0; i < 100; i++) { // max item per page | https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
 				const repo = data.items[i] // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
 				upsertRepo(repo)
@@ -50,7 +50,7 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			const repo_number = top_5_pr_daily_fetch_count + 1
 			const repo_full_name = await getRepoFullName(repo_number)
 			const data = await fetchTop5PR(repo_full_name)
-			fetch_quota--
+			g_fetchQuota--
 			const [{ id: repository_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
 			await sql`DELETE FROM closed_pr WHERE repository_id = ${repository_id}` // delete current PRs of <repo_full_name>
 			let num_of_pr = 5
