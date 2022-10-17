@@ -99,7 +99,7 @@ const fetchRepos = async (page) => {
 }
 
 const upsertRepo = async (repo) => {
-	const { id, full_name, html_url, description, stargazers_count, open_issues_count } = repo
+	const { id, full_name, html_url, description, stargazers_count, open_issues_count, topics } = repo
 	const issue_per_star_ratio = open_issues_count / stargazers_count
 	const license_key = repo.license ? repo.license.key : null
 	const last_commit_date = repo.pushed_at.slice(0, 10) // slice 2022-09-14 from 2022-09-14T23:19:32Z
@@ -108,7 +108,7 @@ const upsertRepo = async (repo) => {
 
 	await sql`
 		INSERT INTO repository
-			VALUES (${id}, ${full_name}, ${owner_avatar_url}, ${html_url}, ${description}, ${last_commit_date}, ${stargazers_count}, ${license_key}, ${last_verified_at}, ${issue_per_star_ratio}, ${open_issues_count})
+			VALUES (${id}, ${full_name}, ${owner_avatar_url}, ${html_url}, ${description}, ${last_commit_date}, ${stargazers_count}, ${license_key}, ${last_verified_at}, ${issue_per_star_ratio}, ${open_issues_count}, ${topics})
 		ON CONFLICT (id) DO UPDATE
 			SET full_name = ${full_name},
 				owner_avatar_url = ${owner_avatar_url},
@@ -119,7 +119,8 @@ const upsertRepo = async (repo) => {
 				license_key = ${license_key},
 				last_verified_at = ${last_verified_at},
 				issue_per_star_ratio = ${issue_per_star_ratio},
-				open_issues_count = ${open_issues_count};
+				open_issues_count = ${open_issues_count},
+				topics = ${topics};
 	` // https://stackoverflow.com/a/1109198/9157799
 }
 
