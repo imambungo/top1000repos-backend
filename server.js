@@ -17,10 +17,9 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 		repo_daily_fetch_count         = parseInt(repo_daily_fetch_count)
 		top_5_pr_daily_fetch_count     = parseInt(top_5_pr_daily_fetch_count)
 		top_5_issues_daily_fetch_count = parseInt(top_5_issues_daily_fetch_count)
-		const today = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
-		if (server_last_active_date != today) { // reset all daily_fetch_count to 0 and set server_last_active_date to today
+		if (server_last_active_date != today()) { // reset all daily_fetch_count to 0 and set server_last_active_date to today
 			await sql`UPDATE standalone_data SET value = 0 WHERE name != 'server_last_active_date';`
-			await sql`UPDATE standalone_data SET value = ${today} WHERE name = 'server_last_active_date';` // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
+			await sql`UPDATE standalone_data SET value = ${today()} WHERE name = 'server_last_active_date';` // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
 		} else if (repo_daily_fetch_count < 10) { // fetch repos and stuff
 			const page_to_fetch = repo_daily_fetch_count + 1
 			const data = await fetchRepos(page_to_fetch)
@@ -31,7 +30,7 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			}
 			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'repo_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
 			console.log(`fetched repos (page ${page_to_fetch})`);
-			// TODO: if (page_to_fetch == 10) clearOutdatedRepo()
+			if (page_to_fetch == 10) clearOutdatedRepo()
 		} else if (top_5_pr_daily_fetch_count < 1000) { // fetch top 5 pr and stuff
 			const repo_number = top_5_pr_daily_fetch_count + 1
 			const repo_full_name = await getRepoFullName(repo_number)
@@ -91,6 +90,14 @@ server.get('/repositories', async (req, res) => {
 })
 
 
+
+const today = () => {
+	return new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
+}
+
+const clearOutdatedRepo = async () => {
+	await sql`DELETE FROM repository WHERE last_verified_at < ${today()};`
+}
 
 const insertIssue = async (issue, repository_id) => {
 	const { number, html_url, title } = issue
