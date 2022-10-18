@@ -96,7 +96,8 @@ const today = () => {
 }
 
 const clearOutdatedRepo = async () => {
-	await sql`DELETE FROM repository WHERE last_verified_at < ${today()};`
+	const deletedRepos = await sql`DELETE FROM repository WHERE last_verified_at < ${today()} RETURNING *;`
+	console.log(`cleared ${deletedRepos.length} outdated repos`)
 }
 
 const insertIssue = async (issue, repository_id) => {
