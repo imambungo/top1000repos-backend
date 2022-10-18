@@ -1,27 +1,3 @@
-// https://expressjs.com/en/starter/hello-world.html
-import express from 'express' // dk usah pake require: https://github.com/porsager/postgres#usage | https://stackoverflow.com/a/64655153/9157799
-const server = express()
-const port = 3000
-
-server.listen(port, () => {
-	console.log(`server listening on port ${port} (localhost:${port})`)
-})
-
-server.get('/', (req, res) => {
-	res.send('Hello World!')
-})
-
-server.get('/repositories', async (req, res) => {
-	let repos = await sql`SELECT * FROM repository;`
-	repos = repos.map(repo => ({ // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
-		...repo, // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#spread_in_object_literals
-		last_commit_date: repo.last_commit_date.toISOString().slice(0, 10), // "2022-10-18T00:00:00.000Z" -> "2022-10-18"
-		last_verified_at: repo.last_verified_at.toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
-	}))
-	res.send(repos)
-})
-
-
 import cron from 'node-cron' // https://www.npmjs.com/package/node-cron
 
 let G_fetch_quota = 10 // fetch quota per minute
@@ -89,6 +65,32 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 		}
 	}
 });
+
+
+// https://expressjs.com/en/starter/hello-world.html
+import express from 'express' // dk usah pake require: https://github.com/porsager/postgres#usage | https://stackoverflow.com/a/64655153/9157799
+const server = express()
+const port = 3000
+
+server.listen(port, () => {
+	console.log(`server listening on port ${port} (localhost:${port})`)
+})
+
+server.get('/', (req, res) => {
+	res.send('Hello World!')
+})
+
+server.get('/repositories', async (req, res) => {
+	let repos = await sql`SELECT * FROM repository;`
+	repos = repos.map(repo => ({ // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+		...repo, // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#spread_in_object_literals
+		last_commit_date: repo.last_commit_date.toISOString().slice(0, 10), // "2022-10-18T00:00:00.000Z" -> "2022-10-18"
+		last_verified_at: repo.last_verified_at.toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
+	}))
+	res.send(repos)
+})
+
+
 
 const insertIssue = async (issue, repository_id) => {
 	const { number, html_url, title } = issue
