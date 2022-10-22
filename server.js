@@ -67,19 +67,31 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 
 
 // https://expressjs.com/en/starter/hello-world.html
-import express from 'express' // dk usah pake require: https://github.com/porsager/postgres#usage | https://stackoverflow.com/a/64655153/9157799
+import express from 'express' // dk usah pake require: https://stackoverflow.com/a/64655153/9157799
 const server = express()
-const port = 3000
 
+const port = 3000
 server.listen(port, () => {
 	console.log(`server listening on port ${port} (localhost:${port})`)
 })
+
+
+/*
+import cors from 'cors' // https://www.npmjs.com/package/cors#usage
+const corsOptions = {
+	origin: 'http://localhost:5173',
+	optionsSuccessStatus: 200
+}
+server.use(cors(corsOptions))
+*/
+
 
 server.get('/', (req, res) => {
 	res.send('Hello World!')
 })
 
 server.get('/repositories', async (req, res) => {
+	console.log('GET: /repositories')
 	let repos = await sql`SELECT * FROM repository;`
 	repos = repos.map(repo => ({ // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
 		...repo, // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#spread_in_object_literals
