@@ -76,14 +76,12 @@ server.listen(port, () => {
 })
 
 
-/*
 import cors from 'cors' // https://www.npmjs.com/package/cors#usage
 const corsOptions = {
 	origin: 'http://localhost:5173',
 	optionsSuccessStatus: 200
 }
 server.use(cors(corsOptions))
-*/
 
 
 server.get('/', (req, res) => {
