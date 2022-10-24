@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv' // see https://www.npmjs.com/package/dotenv#usage
+dotenv.config()
+
 import postgres from 'postgres' // https://github.com/porsager/postgres
 const sql = postgres({ // https://github.com/porsager/postgres#postgresurl-options
 	username: 'postgres',

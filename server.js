@@ -1,6 +1,3 @@
-import * as dotenv from 'dotenv' // see https://www.npmjs.com/package/dotenv#usage
-dotenv.config()
-
 import cron from 'node-cron' // https://www.npmjs.com/package/node-cron
 
 let G_fetch_quota = 10 // fetch quota per minute
