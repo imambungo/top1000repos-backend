@@ -90,12 +90,19 @@ server.get('/', (req, res) => {
 
 server.get('/repositories', async (req, res) => {
 	console.log('GET: /repositories')
-	let repos = await sql`SELECT * FROM repository;`
+	let repos = await sql`
+		SELECT
+		  id, full_name, html_url, description, last_commit_date, stargazers_count, topics,
+		  sum as top_5_pr_thumbs_up
+		FROM repository INNER JOIN (
+		  SELECT
+			 repository_id, SUM(thumbs_up)
+		  FROM closed_pr GROUP BY repository_id
+		) as total_thumbs_up ON repository.id = total_thumbs_up.repository_id;
+	` // TODO: consider a dedicated top_5_pr_thumbs_up column in repository
 	repos = repos.map(repo => ({ // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
 		...repo, // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#spread_in_object_literals
-		last_commit_date: repo.last_commit_date.toISOString().slice(0, 10), // "2022-10-18T00:00:00.000Z" -> "2022-10-18"
-		// TODO: remove last_verified_at
-		last_verified_at: repo.last_verified_at.toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
+		last_commit_date: repo.last_commit_date.toISOString().slice(0, 10), // "2022-10-18T00:00:00.000Z" -> "2022-10-18" | https://stackoverflow.com/a/35922073/9157799
 	}))
 	res.send(repos)
 })
