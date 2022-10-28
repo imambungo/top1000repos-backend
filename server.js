@@ -92,7 +92,7 @@ server.get('/repositories', async (req, res) => {
 	console.log('GET: /repositories')
 	let repos = await sql`
 		SELECT
-			id, full_name, html_url, description, last_commit_date, stargazers_count, topics,
+			id, full_name, html_url, description, last_commit_date, stargazers_count, topics, last_verified_at,
 			sum as top_5_pr_thumbs_up
 		FROM repository INNER JOIN (
 			SELECT
