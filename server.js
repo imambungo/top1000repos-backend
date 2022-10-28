@@ -92,12 +92,13 @@ server.get('/repositories', async (req, res) => {
 	console.log('GET: /repositories')
 	let repos = await sql`
 		SELECT
-		  id, full_name, html_url, description, last_commit_date, stargazers_count, topics,
-		  sum as top_5_pr_thumbs_up
+			id, full_name, html_url, description, last_commit_date, stargazers_count, topics,
+			sum as top_5_pr_thumbs_up
 		FROM repository INNER JOIN (
-		  SELECT
-			 repository_id, SUM(thumbs_up)
-		  FROM closed_pr GROUP BY repository_id
+			SELECT
+				repository_id,
+				CAST (SUM(thumbs_up) as INTEGER)  -- https://stackoverflow.com/a/74231479/9157799
+			FROM closed_pr GROUP BY repository_id
 		) as total_thumbs_up ON repository.id = total_thumbs_up.repository_id;
 	` // TODO: consider a dedicated top_5_pr_thumbs_up column in repository
 	repos = repos.map(repo => ({ // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
