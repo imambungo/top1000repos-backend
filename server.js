@@ -7,7 +7,7 @@ let task1 = cron.schedule('* * * * *', () => { // every minute, reset fetch quot
 
 import sql from './db.js' // https://github.com/porsager/postgres#usage
 
-let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | https://stackoverflow.com/a/59800039/9157799
+let task23 = cron.schedule('3-59/5 * * * * *', async () => { // every 5th second starting from 3 | https://stackoverflow.com/a/59800039/9157799 | https://stackoverflow.com/a/19204734/9157799 | https://crontab.guru/#3-59/5_*_*_*_*
 	if (G_fetch_quota > 0) {
 		const standalone_data = await sql`SELECT * FROM standalone_data;`
 		const server_last_active_date      = standalone_data.find(o => o.name == 'server_last_active_date').value
@@ -63,7 +63,11 @@ let task23 = cron.schedule('*/5 * * * * *', async () => { // every 5 seconds | h
 			console.log(`fetched top 5 issue (repo ${repo_number})`)
 		}
 	}
-});
+}, { timezone: 'Etc/UTC' }); //https://stackoverflow.com/a/74234498/9157799
+
+let task24 = cron.schedule('0 * * * *' async () => {
+	await sql`UPDATE standalone_data SET value = '0' WHERE name = 'repo_daily_fetch_count';`
+}, { timezone: 'Etc/UTC' })
 
 
 // https://expressjs.com/en/starter/hello-world.html
