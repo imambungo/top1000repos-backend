@@ -94,7 +94,7 @@ server.get('/repositories', async (req, res) => {
 		SELECT
 			id, full_name, html_url, description, last_commit_date, stargazers_count, topics, last_verified_at,
 			sum as top_5_pr_thumbs_up
-		FROM repository INNER JOIN (
+		FROM repository LEFT JOIN (  -- google "sql joins diagram" | when a repo has no PR, the sum will be null
 			SELECT
 				repository_id,
 				CAST (SUM(thumbs_up) as INTEGER)  -- https://stackoverflow.com/a/74231479/9157799
