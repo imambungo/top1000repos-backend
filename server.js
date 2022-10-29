@@ -148,7 +148,7 @@ const upsertRepo = async (repo) => { // TODO: simplify these
 
 	await sql`
 		INSERT INTO repository
-			VALUES (${id}, ${full_name}, ${owner_avatar_url}, ${html_url}, ${description}, ${last_commit_date}, ${stargazers_count}, ${license_key}, ${last_verified_at}, ${issue_per_star_ratio}, ${open_issues_count}, ${archived}, ${topics})
+			VALUES (${id}, ${full_name}, ${owner_avatar_url}, ${html_url}, ${description}, ${last_commit_date}, ${stargazers_count}, ${license_key}, ${last_verified_at}, ${issue_per_star_ratio}, ${open_issues_count}, ${topics}, ${archived})
 		ON CONFLICT (id) DO UPDATE
 			SET full_name = ${full_name},
 				owner_avatar_url = ${owner_avatar_url},
@@ -160,8 +160,8 @@ const upsertRepo = async (repo) => { // TODO: simplify these
 				last_verified_at = ${last_verified_at},
 				issue_per_star_ratio = ${issue_per_star_ratio},
 				open_issues_count = ${open_issues_count},
-				archived = ${archived},
-				topics = ${topics};
+				topics = ${topics},
+				archived = ${archived};
 	` // https://stackoverflow.com/a/1109198/9157799
 }
 
