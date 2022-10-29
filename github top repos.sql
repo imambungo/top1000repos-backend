@@ -13,6 +13,7 @@ CREATE TABLE "repository" (
   "last_verified_at" DATE NOT NULL,
   "issue_per_star_ratio" real NOT NULL,
   "open_issues_count" int NOT NULL,
+  "archived" boolean NOT NULL,
   "topics" varchar[] NOT NULL
 );
 
