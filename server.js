@@ -17,9 +17,9 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 		repo_daily_fetch_count         = parseInt(repo_daily_fetch_count)
 		top_5_pr_daily_fetch_count     = parseInt(top_5_pr_daily_fetch_count)
 		top_5_issues_daily_fetch_count = parseInt(top_5_issues_daily_fetch_count)
-		if (server_last_active_date != today()) { // reset all daily_fetch_count to 0 and set server_last_active_date to today
-			await sql`UPDATE standalone_data SET value = 0 WHERE name != 'server_last_active_date';`
-			await sql`UPDATE standalone_data SET value = ${today()} WHERE name = 'server_last_active_date';` // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
+		if (server_last_active_date != today()) { // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
+			await sql`UPDATE standalone_data SET value = 0 WHERE name != 'server_last_active_date';` // reset all daily fetch counts
+			await sql`UPDATE standalone_data SET value = ${today()} WHERE name = 'server_last_active_date';` // set server_last_active_date to today
 		} else if (repo_daily_fetch_count < 10) { // fetch repos and stuff
 			const page_to_fetch = repo_daily_fetch_count + 1
 			const data = await fetchRepos(page_to_fetch)
