@@ -46,6 +46,8 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 			}
 			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'top_5_pr_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
 			console.log(`fetched top 5 pr (repo ${repo_number})`)
+
+			await sql`UPDATE repository SET num_of_closed_pr_since_1_year = ${data.total_count} WHERE id = ${repository_id};`
 		} else if (top_5_issues_daily_fetch_count < 1000) { // fetch top 5 issues and stuff
 			const repo_number = top_5_issues_daily_fetch_count + 1
 			const repo_full_name = await getRepoFullName(repo_number)
@@ -61,6 +63,8 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 			}
 			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'top_5_issues_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
 			console.log(`fetched top 5 issue (repo ${repo_number})`)
+
+			await sql`UPDATE repository SET num_of_closed_issue_since_1_year = ${data.total_count} WHERE id = ${repository_id};`
 		}
 	}
 }, { timezone: 'Etc/UTC' }); //https://stackoverflow.com/a/74234498/9157799
@@ -92,9 +96,9 @@ server.get('/repositories', async (req, res) => {
 	console.log('GET: /repositories')
 	let repos = await sql`
 		SELECT
-			id, full_name, html_url, description, last_commit_date, stargazers_count, archived, topics, last_verified_at,
+			id, full_name, html_url, description, last_commit_date, stargazers_count, archived, topics, last_verified_at, num_of_closed_pr_since_1_year, num_of_closed_issue_since_1_year,
 			sum as top_5_pr_thumbs_up
-		FROM repository LEFT JOIN (  -- google "sql joins diagram" | when a repo has no PR, the sum will be null
+		FROM repository LEFT JOIN (  -- google "sql joins diagram" | when a repo has no PR, the sum will be null. don't modify this to default to 0 instead of null.
 			SELECT
 				repository_id,
 				CAST (SUM(thumbs_up) as INTEGER)  -- https://stackoverflow.com/a/74231479/9157799

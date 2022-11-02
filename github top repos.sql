@@ -14,7 +14,9 @@ CREATE TABLE "repository" (
   "issue_per_star_ratio" real NOT NULL,
   "open_issues_count" int NOT NULL,
   "topics" varchar[] NOT NULL,
-	"archived" boolean NOT NULL
+  "archived" boolean NOT NULL,
+  "num_of_closed_pr_since_1_year" int,
+  "num_of_closed_issue_since_1_year" int
 );
 
 CREATE TABLE "tag" (
