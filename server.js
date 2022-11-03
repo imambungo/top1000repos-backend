@@ -70,23 +70,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 }, { timezone: 'Etc/UTC' }); //https://stackoverflow.com/a/74234498/9157799
 
 
-// https://expressjs.com/en/starter/hello-world.html
-import express from 'express' // dk usah pake require: https://stackoverflow.com/a/64655153/9157799
-const server = express()
-
-const port = 3000
-server.listen(port, () => {
-	console.log(`server listening on port ${port} (localhost:${port})`)
-})
-
-
-import cors from 'cors' // https://www.npmjs.com/package/cors#usage
-const corsOptions = {
-	origin: 'http://localhost:5173',
-	optionsSuccessStatus: 200
-}
-server.use(cors(corsOptions))
-
+import server from './src/config/server.js'
 
 server.get('/', (req, res) => {
 	res.send('Hello World!')
