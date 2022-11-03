@@ -122,7 +122,7 @@ const fetchRepos = async (page) => {
 	return data
 }
 
-const upsertRepo = async (repo) => { // TODO: simplify these
+const upsertRepo = async (repo) => {
 	const { id, full_name, html_url, description, stargazers_count, open_issues_count, archived, topics } = repo
 	const issue_per_star_ratio = open_issues_count / stargazers_count
 	const license_key = repo.license ? repo.license.key : null
@@ -130,22 +130,19 @@ const upsertRepo = async (repo) => { // TODO: simplify these
 	const owner_avatar_url = repo.owner.avatar_url
 	const last_verified_at = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
 
+	repo = {
+		id, full_name, html_url, description, stargazers_count, open_issues_count, archived, topics,
+		issue_per_star_ratio,
+		license_key,
+		last_commit_date,
+		owner_avatar_url,
+		last_verified_at
+	}
 	await sql`
 		INSERT INTO repository
-			VALUES (${id}, ${full_name}, ${owner_avatar_url}, ${html_url}, ${description}, ${last_commit_date}, ${stargazers_count}, ${license_key}, ${last_verified_at}, ${issue_per_star_ratio}, ${open_issues_count}, ${topics}, ${archived})
+			${sql(repo)}            -- https://github.com/porsager/postgres#dynamic-inserts
 		ON CONFLICT (id) DO UPDATE
-			SET full_name = ${full_name},
-				owner_avatar_url = ${owner_avatar_url},
-				html_url = ${html_url},
-				description = ${description},
-				last_commit_date = ${last_commit_date},
-				stargazers_count = ${stargazers_count},
-				license_key = ${license_key},
-				last_verified_at = ${last_verified_at},
-				issue_per_star_ratio = ${issue_per_star_ratio},
-				open_issues_count = ${open_issues_count},
-				topics = ${topics},
-				archived = ${archived};
+			SET ${sql(repo)}        -- https://github.com/porsager/postgres#dynamic-columns-in-updates
 	` // https://stackoverflow.com/a/1109198/9157799
 }
 
