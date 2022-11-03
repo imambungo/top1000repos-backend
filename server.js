@@ -6,34 +6,30 @@ let task1 = cron.schedule('* * * * *', () => { // every minute, reset fetch quot
 });
 
 import sql from './src/config/db.js' // https://github.com/porsager/postgres#usage
+import persistent_global_variable from './src/lib/persistent_global_variable.js'
+const pgv = persistent_global_variable(sql)
 
 import { today } from './src/lib/date.js'
 let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | https://stackoverflow.com/a/59800039/9157799
 	if (G_fetch_quota > 0) {
-		const standalone_data = await sql`SELECT * FROM standalone_data;`
-		const server_last_active_date      = standalone_data.find(o => o.name == 'server_last_active_date').value
-		let repo_daily_fetch_count         = standalone_data.find(o => o.name == 'repo_daily_fetch_count').value // https://stackoverflow.com/a/35397839/9157799
-		let top_5_pr_daily_fetch_count     = standalone_data.find(o => o.name == 'top_5_pr_daily_fetch_count').value
-		let top_5_issues_daily_fetch_count = standalone_data.find(o => o.name == 'top_5_issues_daily_fetch_count').value
-		repo_daily_fetch_count         = parseInt(repo_daily_fetch_count)
-		top_5_pr_daily_fetch_count     = parseInt(top_5_pr_daily_fetch_count)
-		top_5_issues_daily_fetch_count = parseInt(top_5_issues_daily_fetch_count)
-		if (server_last_active_date != today()) { // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
-			await sql`UPDATE standalone_data SET value = 0 WHERE name != 'server_last_active_date';` // reset all daily fetch counts
-			await sql`UPDATE standalone_data SET value = ${today()} WHERE name = 'server_last_active_date';` // set server_last_active_date to today
-		} else if (repo_daily_fetch_count < 10) { // fetch repos and stuff
-			const page_to_fetch = repo_daily_fetch_count + 1
+		if (await pgv.get('server_last_active_date') != today()) { // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
+			pgv.set('repo_daily_fetch_count', 0)
+			pgv.set('top_5_pr_daily_fetch_count', 0)
+			pgv.set('top_5_issues_daily_fetch_count', 0)
+			pgv.set('server_last_active_date', today())
+		} else if (await pgv.get('repo_daily_fetch_count') < 10) { // fetch repos and stuff
+			const page_to_fetch = await pgv.get('repo_daily_fetch_count') + 1
 			const data = await fetchRepos(page_to_fetch)
 			G_fetch_quota--
 			for (let i = 0; i < 100; i++) { // max item per page | https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
 				const repo = data.items[i] // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
 				upsertRepo(repo)
 			}
-			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'repo_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
+			await pgv.increment('repo_daily_fetch_count')
 			console.log(`fetched repos (page ${page_to_fetch})`);
 			if (page_to_fetch == 10) clearOutdatedRepo()
-		} else if (top_5_pr_daily_fetch_count < 1000) { // fetch top 5 pr and stuff
-			const repo_number = top_5_pr_daily_fetch_count + 1
+		} else if (await pgv.get('top_5_pr_daily_fetch_count') < 1000) { // fetch top 5 pr and stuff
+			const repo_number = await pgv.get('top_5_pr_daily_fetch_count') + 1
 			const repo_full_name = await getRepoFullName(repo_number)
 			const data = await fetchTop5PR(repo_full_name)
 			G_fetch_quota--
@@ -45,12 +41,12 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 				const pr = data.items[i] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E2022-01-25%20repo:flutter/flutter
 				insertPR(pr, repository_id)
 			}
-			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'top_5_pr_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
+			await pgv.increment('top_5_pr_daily_fetch_count')
 			console.log(`fetched top 5 pr (repo ${repo_number})`)
 
 			await sql`UPDATE repository SET num_of_closed_pr_since_1_year = ${data.total_count} WHERE id = ${repository_id};`
-		} else if (top_5_issues_daily_fetch_count < 1000) { // fetch top 5 issues and stuff
-			const repo_number = top_5_issues_daily_fetch_count + 1
+		} else if (await pgv.get('top_5_issues_daily_fetch_count') < 1000) { // fetch top 5 issues and stuff
+			const repo_number = pgv.get('top_5_issues_daily_fetch_count') + 1
 			const repo_full_name = await getRepoFullName(repo_number)
 			const data = await fetchTop5Issue(repo_full_name)
 			G_fetch_quota--
@@ -62,7 +58,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 				const issue = data.items[i] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:flutter/flutter
 				insertIssue(issue, repository_id)
 			}
-			await sql`UPDATE standalone_data SET value = value::int + 1 WHERE name = 'top_5_issues_daily_fetch_count';` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
+			pgv.increment('top_5_issues_daily_fetch_count')
 			console.log(`fetched top 5 issue (repo ${repo_number})`)
 
 			await sql`UPDATE repository SET num_of_closed_issue_since_1_year = ${data.total_count} WHERE id = ${repository_id};`
