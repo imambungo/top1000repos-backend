@@ -5,7 +5,7 @@ let task1 = cron.schedule('* * * * *', () => { // every minute, reset fetch quot
 	G_fetch_quota = 10
 });
 
-import sql from './db.js' // https://github.com/porsager/postgres#usage
+import sql from './src/config/db.js' // https://github.com/porsager/postgres#usage
 
 let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | https://stackoverflow.com/a/59800039/9157799
 	if (G_fetch_quota > 0) {
