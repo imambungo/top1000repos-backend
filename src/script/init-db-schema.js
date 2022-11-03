@@ -1,7 +1,7 @@
 // https://github.com/porsager/postgres#usage
-import sql from './db.js' // db.js is not version controlled
+import sql from './../config/db.js'
 
-await sql.file('github top repos.sql') // the schema
+await sql.file('./../github top repos.sql') // the schema
 await sql`
 	INSERT INTO standalone_data
 	       VALUES ('server_last_active_date', '2000-01-01'),
