@@ -7,6 +7,7 @@ let task1 = cron.schedule('* * * * *', () => { // every minute, reset fetch quot
 
 import sql from './src/config/db.js' // https://github.com/porsager/postgres#usage
 
+import { today } from './src/lib/date.js'
 let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | https://stackoverflow.com/a/59800039/9157799
 	if (G_fetch_quota > 0) {
 		const standalone_data = await sql`SELECT * FROM standalone_data;`
@@ -98,11 +99,6 @@ server.get('/repositories', async (req, res) => {
 })
 
 
-
-const today = () => {
-	return new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
-}
-
 const clearOutdatedRepo = async () => {
 	const deletedRepos = await sql`DELETE FROM repository WHERE last_verified_at < ${today()} RETURNING *;`
 	console.log(`cleared ${deletedRepos.length} outdated repos`)
@@ -164,13 +160,9 @@ const getRepoFullName = async (repo_number) => {
 	return full_name
 }
 
+import { a_year_ago } from './src/lib/date.js';
 const fetchTop5PR = async (repo_full_name) => { // fetch top 5 closed PR of the last 365 days
-	const aYearAgo = () => {
-		const date = new Date()
-		date.setDate(date.getDate() - 365) // https://stackoverflow.com/a/13838662/9157799
-		return date.toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
-	}
-	const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E${aYearAgo()}%20repo:${repo_full_name}`)
+	const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E${a_year_ago()}%20repo:${repo_full_name}`)
 	const data = await response.json()
 	return data
 }
