@@ -82,7 +82,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 			await sql`DELETE FROM closed_pr WHERE repository_id = ${repository_id}` // delete previous top 5 PRs of <repo_full_name>
 			pull_requests.forEach(pr => insert_PR(sql, pr, repository_id))
 			await pgv.increment('top_5_pr_daily_fetch_count')
-			console.log(`fetched top 5 pr (repo ${repo_number})`)
+			console.log(`fetched top 5 closed PR (repo ${repo_number})`)
 
 			await sql`UPDATE repository SET num_of_closed_pr_since_1_year = ${data.total_count} WHERE id = ${repository_id};`
 		} else if (await pgv.get('top_5_issues_daily_fetch_count') < 1000) { // fetch top 5 issues and stuff
@@ -106,7 +106,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 			await sql`DELETE FROM open_issue WHERE repository_id = ${repository_id}` // delete previous top 5 open issues of <repo_full_name>
 			issues.forEach(issue => insert_issue(sql, issue, repository_id))
 			pgv.increment('top_5_issues_daily_fetch_count')
-			console.log(`fetched top 5 issue (repo ${repo_number})`)
+			console.log(`fetched top 5 open issues (repo ${repo_number})`)
 
 			await sql`UPDATE repository SET num_of_closed_issue_since_1_year = ${data.total_count} WHERE id = ${repository_id};`
 		}
