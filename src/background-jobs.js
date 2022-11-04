@@ -78,7 +78,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 			const repo_full_name = await get_repo_full_name(sql, repo_number)
 			const { items: pull_requests } = await fetch_top_5_closed_PR_since(repo_full_name, a_year_ago())
 			G_fetch_quota--
-			const [{ id: repository_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
+			const repository_id = get_repo_id(sql, repo_full_name)
 			await sql`DELETE FROM closed_pr WHERE repository_id = ${repository_id}` // delete previous top 5 PRs of <repo_full_name>
 			pull_requests.forEach(pr => insert_PR(sql, pr, repository_id))
 			await pgv.increment('top_5_pr_daily_fetch_count')
@@ -97,12 +97,12 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 				const thumbs_up = issue.reactions['+1'] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:flutter/flutter
 				await sql`INSERT INTO open_issue VALUES (${repository_id}, ${number}, ${html_url}, ${title}, ${thumbs_up})`
 			}
-			
+
 			const repo_number = pgv.get('top_5_issues_daily_fetch_count') + 1
 			const repo_full_name = await get_repo_full_name(sql, repo_number)
 			const { items: issues } = await fetch_top_5_open_issues(repo_full_name)
 			G_fetch_quota--
-			const [{ id: repository_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
+			const repository_id = get_repo_id(sql, repo_full_name)
 			await sql`DELETE FROM open_issue WHERE repository_id = ${repository_id}` // delete previous top 5 open issues of <repo_full_name>
 			issues.forEach(issue => insert_issue(sql, issue, repository_id))
 			pgv.increment('top_5_issues_daily_fetch_count')
@@ -122,4 +122,9 @@ const get_repo_full_name = async (sql, repo_number) => {
 			WHERE row_number = ${repo_number};
 	`
 	return full_name
+}
+
+const get_repo_id = async (sql, repo_full_name) => {
+	const [{ id: repo_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
+	return repo_id
 }
