@@ -19,28 +19,20 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 			pgv.set('server_last_active_date', today())
 		} else if (await pgv.get('repo_daily_fetch_count') < 10) { // fetch repos and stuff
 			const page_to_fetch = await pgv.get('repo_daily_fetch_count') + 1
-			const data = await fetch_repos(page_to_fetch)
+			const { items: repos } = await fetch_repos(page_to_fetch) // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
 			G_fetch_quota--
-			for (let i = 0; i < 100; i++) { // max item per page | https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
-				const repo = data.items[i] // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
-				upsert_repo(sql, repo)
-			}
+			repos.forEach(repo => upsert_repo(sql, repo)) // max item per page is 100 | https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
 			await pgv.increment('repo_daily_fetch_count')
 			console.log(`fetched repos (page ${page_to_fetch})`);
 			if (page_to_fetch == 10) clear_outdated_repos(sql)
 		} else if (await pgv.get('top_5_pr_daily_fetch_count') < 1000) { // fetch top 5 pr and stuff
 			const repo_number = await pgv.get('top_5_pr_daily_fetch_count') + 1
 			const repo_full_name = await get_repo_full_name(sql, repo_number)
-			const data = await fetch_top_5_closed_PR(repo_full_name)
+			const { items: pull_requests } = await fetch_top_5_closed_PR(repo_full_name)
 			G_fetch_quota--
 			const [{ id: repository_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
 			await sql`DELETE FROM closed_pr WHERE repository_id = ${repository_id}` // delete previous top 5 PRs of <repo_full_name>
-			let num_of_pr = 5
-			if (data.items.length < 5) num_of_pr = data.items.length // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/length
-			for (let i = 0; i < num_of_pr; i++) {
-				const pr = data.items[i] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E2022-01-25%20repo:flutter/flutter
-				insert_PR(sql, pr, repository_id)
-			}
+			pull_requests.forEach(pr => insert_PR(sql, pr, repository_id))
 			await pgv.increment('top_5_pr_daily_fetch_count')
 			console.log(`fetched top 5 pr (repo ${repo_number})`)
 
@@ -48,16 +40,11 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 		} else if (await pgv.get('top_5_issues_daily_fetch_count') < 1000) { // fetch top 5 issues and stuff
 			const repo_number = pgv.get('top_5_issues_daily_fetch_count') + 1
 			const repo_full_name = await get_repo_full_name(sql, repo_number)
-			const data = await fetch_top_5_open_issues(repo_full_name)
+			const { items: issues } = await fetch_top_5_open_issues(repo_full_name)
 			G_fetch_quota--
 			const [{ id: repository_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
 			await sql`DELETE FROM open_issue WHERE repository_id = ${repository_id}` // delete previous top 5 open issues of <repo_full_name>
-			let num_of_issues = 5
-			if (data.items.length < 5) num_of_issues = data.items.length // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/length
-			for (let i = 0; i < num_of_issues; i++) {
-				const issue = data.items[i] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:flutter/flutter
-				insert_issue(sql, issue, repository_id)
-			}
+			issues.forEach(issue => insert_issue(sql, issue, repository_id))
 			pgv.increment('top_5_issues_daily_fetch_count')
 			console.log(`fetched top 5 issue (repo ${repo_number})`)
 
