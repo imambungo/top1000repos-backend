@@ -1,7 +1,6 @@
 import './src/background-jobs.js'
 
 import sql from './src/config/db.js' // https://github.com/porsager/postgres#usage
-
 import server from './src/config/server.js'
 
 server.get('/', (req, res) => {
