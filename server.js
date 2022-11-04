@@ -8,7 +8,7 @@ server.get('/', (req, res) => {
 })
 
 server.get('/repositories', async (req, res) => {
-	console.log('GET: /repositories')
+	console.log('GET /repositories')
 	let repos = await sql`
 		SELECT
 			id, full_name, html_url, description, last_commit_date, stargazers_count, archived, topics, last_verified_at, num_of_closed_pr_since_1_year, num_of_closed_issue_since_1_year,
