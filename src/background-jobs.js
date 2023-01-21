@@ -26,7 +26,6 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 
 			const upsert_repo = async (sql, repo) => {
 				const { id, full_name, html_url, description, stargazers_count, open_issues_count, archived, topics } = repo
-				const issue_per_star_ratio = open_issues_count / stargazers_count
 				const license_key = repo.license ? repo.license.key : null
 				const last_commit_date = repo.pushed_at.slice(0, 10) // slice 2022-09-14 from 2022-09-14T23:19:32Z
 				const owner_avatar_url = repo.owner.avatar_url
@@ -34,7 +33,6 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 			
 				repo = {
 					id, full_name, html_url, description, stargazers_count, open_issues_count, archived, topics,
-					issue_per_star_ratio,
 					license_key,
 					last_commit_date,
 					owner_avatar_url,
