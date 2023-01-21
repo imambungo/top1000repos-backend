@@ -11,7 +11,6 @@ CREATE TABLE "repository" (
   "stargazers_count" int NOT NULL,
   "license_key" varchar,
   "last_verified_at" DATE NOT NULL,
-  "issue_per_star_ratio" real NOT NULL,
   "open_issues_count" int NOT NULL,
   "topics" varchar[] NOT NULL,
   "archived" boolean NOT NULL,
