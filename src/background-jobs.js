@@ -83,23 +83,17 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 				return data
 			}
 
-			const insert_issue = async (sql, issue, repository_id) => {
-				const { number, html_url, title } = issue
-				const thumbs_up = issue.reactions['+1'] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:flutter/flutter
-				await sql`INSERT INTO open_issue VALUES (${repository_id}, ${number}, ${html_url}, ${title}, ${thumbs_up})`
-			}
-
 			const repo_number = pgv.get('top_5_issues_daily_fetch_count') + 1 // TODO differentiate closed and open
 			const repo_full_name = await get_repo_full_name(sql, repo_number)
-			const { total_count, items: issues } = await fetch_top_5_open_issues(repo_full_name)
+			const { items: issues } = await fetch_top_5_open_issues(repo_full_name) // don't need to create num_of_open_issue_of_all_time since we already got open_issues_count
 			G_fetch_quota--
 			const repository_id = await get_repo_id(sql, repo_full_name)
-			await sql`DELETE FROM open_issue WHERE repository_id = ${repository_id}` // delete previous top 5 open issues of <repo_full_name>
-			issues.forEach(issue => insert_issue(sql, issue, repository_id))
+			let total_thumbs_up_of_top_5_open_issue_of_all_time = 0
+			issues.forEach(issue => total_thumbs_up_of_top_5_open_issue_of_all_time += issue.reactions['+1'])
 			pgv.increment('top_5_issues_daily_fetch_count')
 			console.log(`fetched top 5 open issues (repo ${repo_number})`)
 
-			await sql`UPDATE repository SET num_of_closed_issue_since_1_year = ${total_count} WHERE id = ${repository_id};`
+			await sql`UPDATE repository SET total_thumbs_up_of_top_5_open_issue_of_all_time = ${total_thumbs_up_of_top_5_open_issue_of_all_time} WHERE id = ${repository_id};`
 		}
 	}
 }, { timezone: 'Etc/UTC' }); //https://stackoverflow.com/a/74234498/9157799
