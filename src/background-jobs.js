@@ -60,7 +60,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 			if (page_to_fetch == 10) clear_outdated_repos(sql, today())
 		} else if (await pgv.get('top_5_pr_daily_fetch_count') < 1000) { // fetch top 5 pr and stuff
 			const fetch_top_5_closed_PR_since = async (repo_full_name, date) => { // fetch top 5 closed PR of the last 365 days
-				const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E${date}%20repo:${repo_full_name}`)
+				const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E${date}%20repo:${repo_full_name}`) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
 				const data = await response.json()
 				return data
 			}
