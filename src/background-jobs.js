@@ -64,25 +64,18 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 				const data = await response.json()
 				return data
 			}
-
-			const insert_PR = async (sql, pr, repository_id) => {
-				const { number, html_url, title } = pr
-				const thumbs_up = pr.reactions['+1'] // https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E2022-01-25%20repo:flutter/flutter
-				const closed_date = pr.closed_at.slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
-				await sql`INSERT INTO closed_pr VALUES (${repository_id}, ${number}, ${html_url}, ${title}, ${thumbs_up}, ${closed_date})`
-			}
 			
 			const repo_number = await pgv.get('top_5_pr_daily_fetch_count') + 1
 			const repo_full_name = await get_repo_full_name(sql, repo_number)
-			const { items: pull_requests } = await fetch_top_5_closed_PR_since(repo_full_name, a_year_ago())
+			const { total_count: num_of_closed_pr_since_1_year, items: pull_requests } = await fetch_top_5_closed_PR_since(repo_full_name, a_year_ago())
 			G_fetch_quota--
 			const repository_id = await get_repo_id(sql, repo_full_name)
-			await sql`DELETE FROM closed_pr WHERE repository_id = ${repository_id}` // delete previous top 5 PRs of <repo_full_name>
-			pull_requests.forEach(pr => insert_PR(sql, pr, repository_id))
+			let total_thumbs_up_of_top_5_closed_pr_since_1_year = 0
+			pull_requests.forEach(pr => total_thumbs_up_of_top_5_closed_pr_since_1_year += pr.reactions['+1'])
 			await pgv.increment('top_5_pr_daily_fetch_count')
 			console.log(`fetched top 5 closed PR (repo ${repo_number})`)
 
-			await sql`UPDATE repository SET num_of_closed_pr_since_1_year = ${data.total_count} WHERE id = ${repository_id};`
+			await sql`UPDATE repository SET num_of_closed_pr_since_1_year = ${num_of_closed_pr_since_1_year}, total_thumbs_up_of_top_5_closed_pr_since_1_year = ${total_thumbs_up_of_top_5_closed_pr_since_1_year} WHERE id = ${repository_id};`
 		} else if (await pgv.get('top_5_issues_daily_fetch_count') < 1000) { // fetch top 5 issues and stuff
 			const fetch_top_5_open_issues = async (repo_full_name) => { // fetch top 5 open issues of all time
 				const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:${repo_full_name}`)
@@ -98,7 +91,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 
 			const repo_number = pgv.get('top_5_issues_daily_fetch_count') + 1
 			const repo_full_name = await get_repo_full_name(sql, repo_number)
-			const { items: issues } = await fetch_top_5_open_issues(repo_full_name)
+			const { total_count, items: issues } = await fetch_top_5_open_issues(repo_full_name)
 			G_fetch_quota--
 			const repository_id = await get_repo_id(sql, repo_full_name)
 			await sql`DELETE FROM open_issue WHERE repository_id = ${repository_id}` // delete previous top 5 open issues of <repo_full_name>
@@ -106,7 +99,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 			pgv.increment('top_5_issues_daily_fetch_count')
 			console.log(`fetched top 5 open issues (repo ${repo_number})`)
 
-			await sql`UPDATE repository SET num_of_closed_issue_since_1_year = ${data.total_count} WHERE id = ${repository_id};`
+			await sql`UPDATE repository SET num_of_closed_issue_since_1_year = ${total_count} WHERE id = ${repository_id};`
 		}
 	}
 }, { timezone: 'Etc/UTC' }); //https://stackoverflow.com/a/74234498/9157799
