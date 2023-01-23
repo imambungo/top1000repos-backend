@@ -11,14 +11,8 @@ server.get('/repositories', async (req, res) => {
 	console.log('GET /repositories')
 	let repos = await sql`
 		SELECT
-			id, full_name, html_url, description, last_commit_date, stargazers_count, archived, topics, last_verified_at, num_of_closed_pr_since_1_year, num_of_closed_issue_since_1_year,
-			sum as top_5_pr_thumbs_up
-		FROM repository LEFT JOIN (  -- google "sql joins diagram" | when a repo has no PR, the sum will be null. don't modify this to default to 0 instead of null.
-			SELECT
-				repository_id,
-				CAST (SUM(thumbs_up) as INTEGER)  -- https://stackoverflow.com/a/74231479/9157799
-			FROM closed_pr GROUP BY repository_id
-		) as total_thumbs_up ON repository.id = total_thumbs_up.repository_id;
+			id, full_name, html_url, description, last_commit_date, stargazers_count, archived, topics, last_verified_at, num_of_closed_pr_since_1_year, open_issues_count, total_thumbs_up_of_top_5_closed_pr_since_1_year, total_thumbs_up_of_top_5_open_issue_of_all_time
+		FROM repository;
 	` // TODO: consider a dedicated top_5_pr_thumbs_up column in repository
 	repos = repos.map(repo => ({ // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
 		...repo, // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#spread_in_object_literals
