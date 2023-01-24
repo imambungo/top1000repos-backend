@@ -64,7 +64,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 				const data = await response.json()
 				return data
 			}
-			
+
 			const repo_number = await pgv.get('top_5_pr_daily_fetch_count') + 1 // TODO differentiate closed and open
 			const repo_full_name = await get_repo_full_name(sql, repo_number)
 			const { total_count: num_of_closed_pr_since_1_year, items: pull_requests } = await fetch_top_5_closed_PR_since(repo_full_name, a_year_ago())
@@ -83,7 +83,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 				return data
 			}
 
-			const repo_number = pgv.get('top_5_issues_daily_fetch_count') + 1 // TODO differentiate closed and open
+			const repo_number = await pgv.get('top_5_issues_daily_fetch_count') + 1 // TODO differentiate closed and open
 			const repo_full_name = await get_repo_full_name(sql, repo_number)
 			const { items: issues } = await fetch_top_5_open_issues(repo_full_name) // don't need to create num_of_open_issue_of_all_time since we already got open_issues_count
 			G_fetch_quota--
