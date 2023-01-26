@@ -29,7 +29,7 @@ CREATE TABLE "monthly_stars" (
   PRIMARY KEY ("repository_id", "month")
 );
 
-CREATE TABLE "standalone_data" (
+CREATE TABLE "persistent_global_variable" (
   "name" varchar PRIMARY KEY,
   "value" varchar NOT NULL
 );
