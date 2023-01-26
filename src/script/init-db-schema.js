@@ -6,7 +6,7 @@ await sql`
 	INSERT INTO persistent_global_variable
 	       VALUES ('server_last_active_date', '2000-01-01'),
 			        ('repo_daily_fetch_count', '0'),
-					  ('top_5_pr_daily_fetch_count', '0'),
+					  ('top_5_closed_pr_daily_fetch_count', '0'),
 					  ('top_5_issues_daily_fetch_count', '0');
 `
 
