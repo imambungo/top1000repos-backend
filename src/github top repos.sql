@@ -15,11 +15,11 @@ CREATE TABLE "repository" (
   "topics" varchar[] NOT NULL,
   "archived" boolean NOT NULL,
   "num_of_closed_pr_since_1_year" int,
-  "num_of_closed_issue_since_1_year" int,
+  "num_of_closed_issues_since_1_year" int,
   "total_thumbs_up_of_top_5_closed_pr_since_1_year" int,
   "total_thumbs_up_of_top_5_open_issue_of_all_time" int,
   "num_of_open_pr_of_all_time" int,
-  "total_thumbs_up_of_top_5_closed_issue_since_1_year" int
+  "total_thumbs_up_of_top_5_closed_issues_since_1_year" int
 );
 
 CREATE TABLE "monthly_stars" (

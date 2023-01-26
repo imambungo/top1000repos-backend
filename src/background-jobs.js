@@ -15,6 +15,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 		if (await pgv.get('server_last_active_date') != today()) { // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
 			pgv.set('repo_daily_fetch_count', 0)
 			pgv.set('top_5_closed_pr_daily_fetch_count', 0)
+			pgv.set('top_5_closed_issues_daily_fetch_count', 0)
 			pgv.set('top_5_open_issues_daily_fetch_count', 0)
 			pgv.set('server_last_active_date', today())
 		} else if (await pgv.get('repo_daily_fetch_count') < 10) { // fetch repos and stuff
@@ -58,24 +59,40 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 			await pgv.increment('repo_daily_fetch_count')
 			console.log(`fetched repos (page ${page_to_fetch})`);
 			if (page_to_fetch == 10) clear_outdated_repos(sql, today())
-		} else if (await pgv.get('top_5_closed_pr_daily_fetch_count') < 1000) { // fetch top 5 closed pr and stuff
+		} else if (await pgv.get('top_5_closed_pr_daily_fetch_count') < 1000) { // fetch top 5 CLOSED PR and stuff
 			const fetch_top_5_closed_PR_since = async (repo_full_name, date) => { // fetch top 5 closed PR of the last 365 days
 				const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E${date}%20repo:${repo_full_name}`) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
 				const data = await response.json()
 				return data
 			}
 
-			const repo_number = await pgv.get('top_5_closed_pr_daily_fetch_count') + 1 // TODO differentiate closed and open
+			const repo_number = await pgv.get('top_5_closed_pr_daily_fetch_count') + 1
 			const repo_full_name = await get_repo_full_name(sql, repo_number)
-			const { total_count: num_of_closed_pr_since_1_year, items: pull_requests } = await fetch_top_5_closed_PR_since(repo_full_name, a_year_ago())
+			const { total_count: num_of_closed_pr_since_1_year, items: top_5_closed_pr } = await fetch_top_5_closed_PR_since(repo_full_name, a_year_ago())
 			G_fetch_quota--
 			const repository_id = await get_repo_id(sql, repo_full_name)
 			let total_thumbs_up_of_top_5_closed_pr_since_1_year = 0
-			pull_requests.forEach(pr => total_thumbs_up_of_top_5_closed_pr_since_1_year += pr.reactions['+1'])
+			top_5_closed_pr.forEach(pr => total_thumbs_up_of_top_5_closed_pr_since_1_year += pr.reactions['+1'])
 			await pgv.increment('top_5_closed_pr_daily_fetch_count')
 			console.log(`fetched top 5 closed PR (repo ${repo_number})`)
-
 			await sql`UPDATE repository SET num_of_closed_pr_since_1_year = ${num_of_closed_pr_since_1_year}, total_thumbs_up_of_top_5_closed_pr_since_1_year = ${total_thumbs_up_of_top_5_closed_pr_since_1_year} WHERE id = ${repository_id};`
+		} else if (await pgv.get('top_5_closed_issues_daily_fetch_count') < 1000) { // fetch top 5 CLOSED ISSUES and stuff
+			const fetch_top_5_closed_issues_since = async (repo_full_name, date) => { // fetch top 5 closed issues of the last 365 days
+				const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:issue%20closed:%3E${date}%20repo:${repo_full_name}`) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
+				const data = await response.json()
+				return data
+			}
+
+			const repo_number = await pgv.get('top_5_closed_issues_daily_fetch_count') + 1
+			const repo_full_name = await get_repo_full_name(sql, repo_number)
+			const { total_count: num_of_closed_issues_since_1_year, items: top_5_closed_issues } = await fetch_top_5_closed_issues_since(repo_full_name, a_year_ago())
+			G_fetch_quota--
+			const repository_id = await get_repo_id(sql, repo_full_name)
+			let total_thumbs_up_of_top_5_closed_issues_since_1_year = 0
+			top_5_closed_issues.forEach(issue => total_thumbs_up_of_top_5_closed_issues_since_1_year += issue.reactions['+1'])
+			await pgv.increment('top_5_closed_issues_daily_fetch_count')
+			console.log(`fetched top 5 closed issues (repo ${repo_number})`)
+			await sql`UPDATE repository SET num_of_closed_issues_since_1_year = ${num_of_closed_issues_since_1_year}, total_thumbs_up_of_top_5_closed_issues_since_1_year = ${total_thumbs_up_of_top_5_closed_issues_since_1_year} WHERE id = ${repository_id};`
 		} else if (await pgv.get('top_5_open_issues_daily_fetch_count') < 1000) { // fetch top 5 open issues and stuff
 			const fetch_top_5_open_issues = async (repo_full_name) => { // fetch top 5 open issues of all time
 				const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:${repo_full_name}`)
@@ -83,7 +100,7 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 				return data
 			}
 
-			const repo_number = await pgv.get('top_5_open_issues_daily_fetch_count') + 1 // TODO differentiate closed and open
+			const repo_number = await pgv.get('top_5_open_issues_daily_fetch_count') + 1
 			const repo_full_name = await get_repo_full_name(sql, repo_number)
 			const { items: issues } = await fetch_top_5_open_issues(repo_full_name) // don't need to create num_of_open_issue_of_all_time since we already got open_issues_count
 			G_fetch_quota--
@@ -92,7 +109,6 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 			issues.forEach(issue => total_thumbs_up_of_top_5_open_issue_of_all_time += issue.reactions['+1'])
 			pgv.increment('top_5_open_issues_daily_fetch_count')
 			console.log(`fetched top 5 open issues (repo ${repo_number})`)
-
 			await sql`UPDATE repository SET total_thumbs_up_of_top_5_open_issue_of_all_time = ${total_thumbs_up_of_top_5_open_issue_of_all_time} WHERE id = ${repository_id};`
 		}
 	}
