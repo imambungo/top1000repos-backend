@@ -12,7 +12,7 @@ const pgv = persistent_global_variable(sql)
 
 let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | https://stackoverflow.com/a/59800039/9157799
 	if (G_fetch_quota > 0) {
-		if (await pgv.get('server_last_active_date') != today()) { // different SQL statement should be splitted | https://github.com/porsager/postgres/issues/86#issuecomment-668217732
+		if (await pgv.get('server_last_active_date') != today()) { // in UTC: https://stackoverflow.com/a/74234498/9157799 | different SQL statement should be splitted: https://github.com/porsager/postgres/issues/86#issuecomment-668217732
 			pgv.set('repo_daily_fetch_count', 0)
 			pgv.set('top_5_closed_pr_daily_fetch_count', 0)
 			pgv.set('top_5_closed_issues_daily_fetch_count', 0)
