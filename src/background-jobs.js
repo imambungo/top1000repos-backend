@@ -10,13 +10,15 @@ import sql from './config/db.js' // https://github.com/porsager/postgres#usage
 import persistent_global_variable from './lib/persistent_global_variable.js'
 const pgv = persistent_global_variable(sql)
 
-let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | https://stackoverflow.com/a/59800039/9157799
+const githubApiVersion = '2022-11-28'
+const apiRequestHeaders = {  // https://trello.com/c/MgI1fvc5 | https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
+	'X-GitHub-Api-Version': githubApiVersion, // https://docs.github.com/en/rest/overview/api-versions?apiVersion=2022-11-28#specifying-an-api-version
+	'User-Agent': 'imambungo'             // https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#user-agent-required
+}
+const fetchOptions = {headers: apiRequestHeaders} // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
+
+let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
 	if (G_fetch_quota > 0) {
-		const apiRequestHeaders = {  // https://trello.com/c/MgI1fvc5 | https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
-			'X-GitHub-Api-Version': '2022-11-28', // https://docs.github.com/en/rest/overview/api-versions?apiVersion=2022-11-28#specifying-an-api-version
-			'User-Agent': 'imambungo'             // https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#user-agent-required
-		}
-		const fetchOptions = {headers: apiRequestHeaders} // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
 		if (await pgv.get('server_last_active_date') != today()) { // in UTC: https://stackoverflow.com/a/74234498/9157799 | different SQL statement should be splitted: https://github.com/porsager/postgres/issues/86#issuecomment-668217732
 			pgv.set('repo_daily_fetch_count', 0)
 			pgv.set('top_5_closed_pr_daily_fetch_count', 0)
@@ -118,6 +120,16 @@ let task23 = cron.schedule('*/6 * * * * *', async () => { // every 6 second | ht
 		}
 	}
 }, { timezone: 'Etc/UTC' }); //https://stackoverflow.com/a/74234498/9157799
+
+let taskCheckGithubApiVersions = cron.schedule('0 4 * * *', async () => { // “At 04:00.” | with 10 fetch per minute, 2000 need 200 minute or 3 hr 20 min. | https://crontab.guru/#0_4_*_*_*
+	console.log(`current GitHub API version: ${githubApiVersion}`)
+	const fetch_github_api_versions = async () => {
+		const response = await fetch(`https://api.github.com/versions`, fetchOptions); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
+		const data = await response.json();
+		return data
+	}
+	console.log(await fetch_github_api_versions())
+})
 
 const get_repo_full_name = async (sql, repo_number) => {
 	const [{ full_name }] = await sql` -- https://github.com/porsager/postgres#usage
