@@ -1,7 +1,7 @@
 import cron from 'node-cron' // https://www.npmjs.com/package/node-cron
 import { today, a_year_ago } from './lib/date.js'
 
-let G_fetch_quota = 10 // fetch quota per minute
+let G_fetch_quota = 10 // fetch quota per minute | G marks a global variable
 let task1 = cron.schedule('* * * * *', () => { // every minute, reset fetch quota
 	G_fetch_quota = 10
 });
