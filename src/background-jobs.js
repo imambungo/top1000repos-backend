@@ -131,13 +131,14 @@ let taskCheckGithubApiVersions = cron.schedule('0 4 * * *', async () =>  { // â€
 	console.log(await fetch_github_api_versions())
 })
 
-let visitorCount = 0
-let taskVisitorCountPerHour = cron.schedule('0 * * * *', () => {  // minute 0 every hour
+console.log(`${await pgv.get('visitor_count')}  visitors`)
+pgv.set('visitor_count', 0)
+let taskVisitorCountPerHour = cron.schedule('0 * * * *', async () => {  // minute 0 every hour
 	const time = () => {
 		return new Date().toISOString().slice(11, 16) // https://stackoverflow.com/a/35922073/9157799
 	}
-	console.log(`${today()} ${time()}  ${visitorCount}  visitor (past hour)`)
-	visitorCount = 0
+	console.log(`${today()} ${time()}  ${await pgv.get('visitor_count')}  visitors (past hour)`)
+	await pgv.set('visitor_count', 0)
 })
 
 const get_repo_full_name = async (sql, repo_number) => {

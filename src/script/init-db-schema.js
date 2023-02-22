@@ -8,7 +8,8 @@ await sql`
 			        ('repo_daily_fetch_count', '0'),
 					  ('top_5_closed_pr_daily_fetch_count', '0'),
 					  ('top_5_closed_issues_daily_fetch_count', '0'),
-					  ('top_5_open_issues_daily_fetch_count', '0');
+					  ('top_5_open_issues_daily_fetch_count', '0'),
+					  ('visitor_count', '0');
 `
 
-throw 'SUCCESS! THIS IS NOT AN ERROR!' // creating database instance cause the script to persist | https://stackoverflow.com/a/7223319/9157799
+throw 'SUCCESS! THIS IS NOT AN ERROR!' // creating database instance cause the script to persist (idle) | https://stackoverflow.com/a/7223319/9157799

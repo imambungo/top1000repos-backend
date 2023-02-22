@@ -2,6 +2,8 @@ import './src/background-jobs.js'
 
 import sql from './src/config/db.js' // https://github.com/porsager/postgres#usage
 import server from './src/config/server.js'
+import persistent_global_variable from './src/lib/persistent_global_variable.js'
+const pgv = persistent_global_variable(sql)
 
 server.get('/', (req, res) => {
 	res.send('Hello World!')
@@ -20,4 +22,5 @@ server.get('/repositories', async (req, res) => {
 		last_verified_at: repo.last_verified_at.toISOString().slice(0, 10), // "2022-10-18T00:00:00.000Z" -> "2022-10-18" | https://stackoverflow.com/a/35922073/9157799
 	}))
 	res.send(repos)
+	await pgv.increment('visitor_count')
 })
