@@ -17,4 +17,7 @@ const corsOptions = {
 }
 server.use(cors(corsOptions))
 
+import compression from 'compression' // https://www.npmjs.com/package/compression#expressconnect
+server.use(compression())
+
 export default server
