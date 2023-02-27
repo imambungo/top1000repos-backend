@@ -18,9 +18,7 @@ const apiRequestHeaders = {  // https://trello.com/c/MgI1fvc5 | https://develope
 const fetchOptions = {headers: apiRequestHeaders} // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
 
 let taskFetchGithubApi = cron.schedule('*/6 * * * * *', async () => {  // every 6 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
-	console.log('oi')
 	if (G_fetch_quota > 0) {
-		console.log('oii')
 		if (await pgv.get('server_last_active_date') != today()) { // in UTC: https://stackoverflow.com/a/74234498/9157799 | different SQL statement should be splitted: https://github.com/porsager/postgres/issues/86#issuecomment-668217732
 			console.log('oiii')
 			pgv.set('repo_daily_fetch_count', 0)
@@ -28,6 +26,7 @@ let taskFetchGithubApi = cron.schedule('*/6 * * * * *', async () => {  // every 
 			pgv.set('top_5_closed_issues_daily_fetch_count', 0)
 			pgv.set('top_5_open_issues_daily_fetch_count', 0)
 			pgv.set('server_last_active_date', today())
+			console.log('oiii2')
 		} else if (await pgv.get('repo_daily_fetch_count') < 10) { // fetch repos and stuff
 			const fetch_repos = async (page) => {
 				const response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`, fetchOptions); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
