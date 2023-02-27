@@ -100,24 +100,24 @@ let taskFetchGithubApi = cron.schedule('*/6 * * * * *', async () => {  // every 
 			await pgv.increment('top_5_closed_issues_daily_fetch_count')
 			console.log(`fetched top 5 closed issues (repo ${repo_number})`)
 			await sql`UPDATE repository SET num_of_closed_issues_since_1_year = ${num_of_closed_issues_since_1_year}, total_thumbs_up_of_top_5_closed_issues_since_1_year = ${total_thumbs_up_of_top_5_closed_issues_since_1_year} WHERE id = ${repository_id};`
-		} else if (await pgv.get('top_5_open_issues_daily_fetch_count') < 1000) { // fetch top 5 open issues and stuff
-			const fetch_top_5_open_issues = async (repo_full_name) => { // fetch top 5 open issues of all time
-				const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:${repo_full_name}`, fetchOptions)
-				const data = await response.json()
-				return data
-			}
+		} // else if (await pgv.get('top_5_open_issues_daily_fetch_count') < 1000) { // fetch top 5 open issues and stuff
+		// 	const fetch_top_5_open_issues = async (repo_full_name) => { // fetch top 5 open issues of all time
+		// 		const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=type:issue%20state:open%20repo:${repo_full_name}`, fetchOptions)
+		// 		const data = await response.json()
+		// 		return data
+		// 	}
 
-			const repo_number = await pgv.get('top_5_open_issues_daily_fetch_count') + 1
-			const repo_full_name = await get_repo_full_name(sql, repo_number)
-			const { items: issues } = await fetch_top_5_open_issues(repo_full_name) // don't need to create num_of_open_issue_of_all_time since we already got open_issues_count
-			G_fetch_quota--
-			const repository_id = await get_repo_id(sql, repo_full_name)
-			let total_thumbs_up_of_top_5_open_issue_of_all_time = 0
-			issues.forEach(issue => total_thumbs_up_of_top_5_open_issue_of_all_time += issue.reactions['+1'])
-			pgv.increment('top_5_open_issues_daily_fetch_count')
-			console.log(`fetched top 5 open issues (repo ${repo_number})`)
-			await sql`UPDATE repository SET total_thumbs_up_of_top_5_open_issue_of_all_time = ${total_thumbs_up_of_top_5_open_issue_of_all_time} WHERE id = ${repository_id};`
-		}
+		// 	const repo_number = await pgv.get('top_5_open_issues_daily_fetch_count') + 1
+		// 	const repo_full_name = await get_repo_full_name(sql, repo_number)
+		// 	const { items: issues } = await fetch_top_5_open_issues(repo_full_name) // don't need to create num_of_open_issue_of_all_time since we already got open_issues_count
+		// 	G_fetch_quota--
+		// 	const repository_id = await get_repo_id(sql, repo_full_name)
+		// 	let total_thumbs_up_of_top_5_open_issue_of_all_time = 0
+		// 	issues.forEach(issue => total_thumbs_up_of_top_5_open_issue_of_all_time += issue.reactions['+1'])
+		// 	pgv.increment('top_5_open_issues_daily_fetch_count')
+		// 	console.log(`fetched top 5 open issues (repo ${repo_number})`)
+		// 	await sql`UPDATE repository SET total_thumbs_up_of_top_5_open_issue_of_all_time = ${total_thumbs_up_of_top_5_open_issue_of_all_time} WHERE id = ${repository_id};`
+		// }
 	}
 }, { timezone: 'Etc/UTC' }); //https://stackoverflow.com/a/74234498/9157799
 
