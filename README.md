@@ -11,9 +11,12 @@
 ### 3. Setup environment variables
 
 ```
-PGPASSWORD="devgithub_top_repos"
-PORT=3000
 HOST='http://localhost'
+PORT=3000
+
+PGPASSWORD="devgithub_top_repos"
+PGDATABASE='github_top_repos'
+
 FRONTEND_ORIGIN='http://localhost:5173'
 ```
 
