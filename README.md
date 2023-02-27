@@ -14,6 +14,7 @@
 HOST='http://localhost'
 PORT=3000
 
+PGUSER='postgres'
 PGPASSWORD="devgithub_top_repos"
 PGDATABASE='github_top_repos'
 
