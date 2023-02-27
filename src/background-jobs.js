@@ -32,7 +32,6 @@ let taskFetchGithubApi = cron.schedule('*/6 * * * * *', async () => {  // every 
 			const fetch_repos = async (page) => {
 				let response
 				try {
-
 					response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`, fetchOptions); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
 				} catch (e) {
 					console.log(e)
