@@ -20,22 +20,14 @@ const fetchOptions = {headers: apiRequestHeaders} // https://developer.mozilla.o
 let taskFetchGithubApi = cron.schedule('*/6 * * * * *', async () => {  // every 6 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
 	if (G_fetch_quota > 0) {
 		if (await pgv.get('server_last_active_date') != today()) { // in UTC: https://stackoverflow.com/a/74234498/9157799 | different SQL statement should be splitted: https://github.com/porsager/postgres/issues/86#issuecomment-668217732
-			console.log('oi')
 			pgv.set('repo_daily_fetch_count', 0)
 			pgv.set('top_5_closed_pr_daily_fetch_count', 0)
 			pgv.set('top_5_closed_issues_daily_fetch_count', 0)
 			pgv.set('top_5_open_issues_daily_fetch_count', 0)
 			pgv.set('server_last_active_date', today())
-			console.log('oi2')
 		} else if (await pgv.get('repo_daily_fetch_count') < 10) { // fetch repos and stuff
-			console.log('oii')
 			const fetch_repos = async (page) => {
-				let response
-				try {
-					response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`, fetchOptions); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
-				} catch (e) {
-					console.log(e)
-				}
+				const response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`, fetchOptions); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
 				const data = await response.json();
 				return data
 			}
@@ -74,7 +66,6 @@ let taskFetchGithubApi = cron.schedule('*/6 * * * * *', async () => {  // every 
 			await pgv.increment('repo_daily_fetch_count')
 			console.log(`fetched repos (page ${page_to_fetch})`);
 			if (page_to_fetch == 10) clear_outdated_repos(sql, today())
-			console.log('oii2')
 		} else if (await pgv.get('top_5_closed_pr_daily_fetch_count') < 1000) { // fetch top 5 CLOSED PR and stuff
 			const fetch_top_5_closed_PR_since = async (repo_full_name, date) => { // fetch top 5 closed PR of the last 365 days
 				const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E${date}%20repo:${repo_full_name}`, fetchOptions) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
