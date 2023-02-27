@@ -5,9 +5,9 @@ import server from './src/config/server.js'
 import persistent_global_variable from './src/lib/persistent_global_variable.js'
 const pgv = persistent_global_variable(sql)
 
-server.get('/', (req, res) => {
-	res.send('Hello World!')
-})
+// server.get('/', (req, res) => {
+// 	res.send('Hello World!')
+// })
 
 server.get('/repositories', async (req, res) => {
 	console.log('GET /repositories')
