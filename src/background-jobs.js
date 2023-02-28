@@ -119,7 +119,8 @@ let taskFetchGithubApi = cron.schedule('*/6 * * * * *', async () => {  // every 
 		// 	await sql`UPDATE repository SET total_thumbs_up_of_top_5_open_issue_of_all_time = ${total_thumbs_up_of_top_5_open_issue_of_all_time} WHERE id = ${repository_id};`
 		// }
 	}
-}, { timezone: 'Etc/UTC' }); //https://stackoverflow.com/a/74234498/9157799
+})
+//}, { timezone: 'Etc/UTC' }); //https://stackoverflow.com/a/74234498/9157799
 
 let taskCheckGithubApiVersions = cron.schedule('0 4 * * *', async () =>  { // “At 04:00.” | with 10 fetch per minute, 2000 need 200 minute or 3 hr 20 min. | https://crontab.guru/#0_4_*_*_*
 	console.log(`current GitHub API version: ${githubApiVersion}`)
