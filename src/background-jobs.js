@@ -81,7 +81,7 @@ let taskFetchGithubApi = cron.schedule('*/6 * * * * *', async () => {  // every 
 			let total_thumbs_up_of_top_5_closed_pr_since_1_year = 0
 			top_5_closed_pr.forEach(pr => total_thumbs_up_of_top_5_closed_pr_since_1_year += pr.reactions['+1'])
 			await pgv.increment('top_5_closed_pr_daily_fetch_count')
-			if (repo_number%10 == 0) console.log(`fetched top 5 closed PR (repo ${repo_number})`)
+			if (repo_number%20 == 0) console.log(`fetched top 5 closed PR (repo ${repo_number})`)
 			await sql`UPDATE repository SET num_of_closed_pr_since_1_year = ${num_of_closed_pr_since_1_year}, total_thumbs_up_of_top_5_closed_pr_since_1_year = ${total_thumbs_up_of_top_5_closed_pr_since_1_year} WHERE id = ${repository_id};`
 		} else if (await pgv.get('top_5_closed_issues_daily_fetch_count') < 1000) { // fetch top 5 CLOSED ISSUES and stuff
 			const fetch_top_5_closed_issues_since = async (repo_full_name, date) => { // fetch top 5 closed issues of the last 365 days
@@ -98,7 +98,7 @@ let taskFetchGithubApi = cron.schedule('*/6 * * * * *', async () => {  // every 
 			let total_thumbs_up_of_top_5_closed_issues_since_1_year = 0
 			top_5_closed_issues.forEach(issue => total_thumbs_up_of_top_5_closed_issues_since_1_year += issue.reactions['+1'])
 			await pgv.increment('top_5_closed_issues_daily_fetch_count')
-			if (repo_number%10 == 0) console.log(`fetched top 5 closed issues (repo ${repo_number})`)
+			if (repo_number%20 == 0) console.log(`fetched top 5 closed issues (repo ${repo_number})`)
 			await sql`UPDATE repository SET num_of_closed_issues_since_1_year = ${num_of_closed_issues_since_1_year}, total_thumbs_up_of_top_5_closed_issues_since_1_year = ${total_thumbs_up_of_top_5_closed_issues_since_1_year} WHERE id = ${repository_id};`
 		} // else if (await pgv.get('top_5_open_issues_daily_fetch_count') < 1000) { // fetch top 5 open issues and stuff
 		// 	const fetch_top_5_open_issues = async (repo_full_name) => { // fetch top 5 open issues of all time
