@@ -1,8 +1,8 @@
-import cron from 'croner' // https://www.npmjs.com/package/croner
+import Cron from 'croner' // https://www.npmjs.com/package/croner
 import { today, a_year_ago } from './lib/date.js'
 
 let G_fetch_quota = 10 // fetch quota per minute | G marks a global variable
-let task1 = cron.schedule('* * * * *', () => { // every minute, reset fetch quota
+let task1 = Cron('* * * * *', () => { // every minute, reset fetch quota
 	G_fetch_quota = 10
 });
 
@@ -17,7 +17,7 @@ const apiRequestHeaders = {  // https://trello.com/c/MgI1fvc5 | https://develope
 }
 const fetchOptions = {headers: apiRequestHeaders} // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
 
-let taskFetchGithubApi = cron.schedule('*/6 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 6 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
+let taskFetchGithubApi = Cron('*/6 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 6 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
 	if (G_fetch_quota > 0) {
 		if (await pgv.get('server_last_active_date') != today()) { // in UTC: https://stackoverflow.com/a/74234498/9157799 | different SQL statement should be splitted: https://github.com/porsager/postgres/issues/86#issuecomment-668217732
 			pgv.set('repo_daily_fetch_count', 0)
@@ -121,7 +121,7 @@ let taskFetchGithubApi = cron.schedule('*/6 * * * * *', { timezone: 'Etc/UTC' },
 	}
 })
 
-let taskCheckGithubApiVersions = cron.schedule('0 4 * * *', async () =>  { // “At 04:00.” | with 10 fetch per minute, 2000 need 200 minute or 3 hr 20 min. | https://crontab.guru/#0_4_*_*_*
+let taskCheckGithubApiVersions = Cron('0 4 * * *', async () =>  { // “At 04:00.” | with 10 fetch per minute, 2000 need 200 minute or 3 hr 20 min. | https://crontab.guru/#0_4_*_*_*
 	console.log(`current GitHub API version: ${githubApiVersion}`)
 	const fetch_github_api_versions = async () => {
 		const response = await fetch(`https://api.github.com/versions`, fetchOptions); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
@@ -133,7 +133,7 @@ let taskCheckGithubApiVersions = cron.schedule('0 4 * * *', async () =>  { // �
 
 console.log(`${await pgv.get('visitor_count')}  visitors`)
 pgv.set('visitor_count', 0)
-let taskVisitorCountPerHour = cron.schedule('0 * * * *', async () => {  // minute 0 every hour
+let taskVisitorCountPerHour = Cron('0 * * * *', async () => {  // minute 0 every hour
 	const time = () => {
 		return new Date().toISOString().slice(11, 16) // https://stackoverflow.com/a/35922073/9157799
 	}
