@@ -1,4 +1,4 @@
-import cron from 'node-cron' // https://www.npmjs.com/package/node-cron
+import cron from 'croner' // https://www.npmjs.com/package/croner
 import { today, a_year_ago } from './lib/date.js'
 
 let G_fetch_quota = 10 // fetch quota per minute | G marks a global variable
@@ -17,7 +17,7 @@ const apiRequestHeaders = {  // https://trello.com/c/MgI1fvc5 | https://develope
 }
 const fetchOptions = {headers: apiRequestHeaders} // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
 
-let taskFetchGithubApi = cron.schedule('*/6 * * * * *', async () => {  // every 6 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
+let taskFetchGithubApi = cron.schedule('*/6 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 6 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
 	if (G_fetch_quota > 0) {
 		if (await pgv.get('server_last_active_date') != today()) { // in UTC: https://stackoverflow.com/a/74234498/9157799 | different SQL statement should be splitted: https://github.com/porsager/postgres/issues/86#issuecomment-668217732
 			pgv.set('repo_daily_fetch_count', 0)
@@ -120,7 +120,6 @@ let taskFetchGithubApi = cron.schedule('*/6 * * * * *', async () => {  // every 
 		// }
 	}
 })
-//}, { timezone: 'Etc/UTC' }); //https://stackoverflow.com/a/74234498/9157799
 
 let taskCheckGithubApiVersions = cron.schedule('0 4 * * *', async () =>  { // “At 04:00.” | with 10 fetch per minute, 2000 need 200 minute or 3 hr 20 min. | https://crontab.guru/#0_4_*_*_*
 	console.log(`current GitHub API version: ${githubApiVersion}`)
