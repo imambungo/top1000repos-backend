@@ -17,7 +17,7 @@ const apiRequestHeaders = {  // https://trello.com/c/MgI1fvc5 | https://develope
 }
 const fetchOptions = {headers: apiRequestHeaders} // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
 
-let taskFetchGithubApi = Cron('*/6 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 6 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
+let taskFetchGithubApi = Cron('*/8 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 8 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
 	if (G_fetch_quota > 0) {
 		if (await pgv.get('server_last_active_date') != today()) { // in UTC: https://stackoverflow.com/a/74234498/9157799 | different SQL statement should be splitted: https://github.com/porsager/postgres/issues/86#issuecomment-668217732
 			pgv.set('repo_daily_fetch_count', 0)
