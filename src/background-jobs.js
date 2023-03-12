@@ -62,7 +62,9 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
 			const page_to_fetch = await pgv.get('repo_daily_fetch_count') + 1
 			const { items: repos } = await fetch_repos(page_to_fetch) // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
 			G_fetch_quota--
-			repos.forEach(repo => upsert_repo(sql, repo)) // max item per page is 100 | https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
+			await Promise.all(repos.map(                 // https://stackoverflow.com/a/37576787/9157799
+				async repo => { upsert_repo(sql, repo) }  // max item per page is 100 | https://docs.github.com/en/rest/overview/resources-in-the-rest-api#pagination
+			))                                           // using forEach has a chance to cause race condition with clear_outdated_repos()
 			await pgv.increment('repo_daily_fetch_count')
 			console.log(`fetched repos (page ${page_to_fetch})`);
 			if (page_to_fetch == 10) clear_outdated_repos(sql, today())
