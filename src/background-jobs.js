@@ -123,7 +123,7 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
    }
 })
 
-let taskCheckGithubApiVersions = Cron('0 4 * * *', async () =>  { // “At 04:00.” | with 10 fetch per minute, 2000 need 200 minute or 3 hr 20 min. | https://crontab.guru/#0_4_*_*_*
+let taskCheckGithubApiVersions = Cron('0 5 * * *', async () =>  { // “At 05:00.” | with 10 fetch per minute, 2000 need 200 minute or 3 hr 20 min. | https://crontab.guru/#0_4_*_*_*
    console.log(`current GitHub API version: ${githubApiVersion}`)
    const fetch_github_api_versions = async () => {
       const response = await fetch(`https://api.github.com/versions`, fetchOptions); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
