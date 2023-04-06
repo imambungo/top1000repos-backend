@@ -67,9 +67,11 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
          ))                                           // using forEach has a chance to cause race condition with clear_outdated_repos()
          await pgv.increment('repo_daily_fetch_count')
          console.log(`fetched repos (page ${page_to_fetch})`);
-         if (page_to_fetch == 10) await clear_outdated_repos(sql, today())
-         const [{ count: num_of_repos }] = await sql`SELECT COUNT(id) FROM repository` // handle edge case when a repo at the start or end of page gained or lost rank by 1
-         if (num_of_repos < 1000) pgv.set('repo_daily_fetch_count', 0)                 // handle edge case when a repo at the start or end of page gained or lost rank by 1
+         if (page_to_fetch == 10) {
+            await clear_outdated_repos(sql, today())
+            const [{ count: num_of_repos }] = await sql`SELECT COUNT(id) FROM repository` // handle edge case when a repo at the start or end of page gained or lost rank by 1
+            if (num_of_repos < 1000) pgv.set('repo_daily_fetch_count', 0)                 // handle edge case when a repo at the start or end of page gained or lost rank by 1
+         }
       } else if (await pgv.get('top_5_closed_pr_daily_fetch_count') < 1000) { // fetch top 5 CLOSED PR and stuff
          const fetch_top_5_closed_PR_since = async (repo_full_name, date) => { // fetch top 5 closed PR of the last 365 days
             const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E${date}%20repo:${repo_full_name}`, fetchOptions) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
