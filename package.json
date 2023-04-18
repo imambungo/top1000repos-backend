@@ -11,8 +11,7 @@
     "reset-fetch-count": "node src/script/reset-fetch-count.js"
   },
   "author": "M Imam Pratama",
-  "license": "UNLICENSED",
-  "private": true,
+  "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
   },
