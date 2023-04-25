@@ -17,6 +17,7 @@ PGUSER='postgres'
 PGPASSWORD="devgithub_top_repos"
 PGDATABASE='github_top_repos'
 
+GITHUB_API_TOKEN='blablablaSomethingsomething'
 FRONTEND_ORIGIN='http://localhost:5173'
 ```
 
