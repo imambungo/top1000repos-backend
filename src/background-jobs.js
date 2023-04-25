@@ -80,6 +80,8 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
                const data = await response.json()
                return data
             } catch (e) {
+               console.log('-------------------')
+               console.log(e)
                let exception_message = 'CUSTOM EXCEPTION fetch_top_5_closed_PR_since()'
                exception_message += `\nrepo_full_name: ${repo_full_name}`
                exception_message += `\ndate          : ${date}`
