@@ -80,13 +80,13 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
             const data = await response.json()
             if (!response.ok) { // https://stackoverflow.com/a/38236296/9157799
                let error_message = 'ERROR'
-               error_message += '---------------------------------'
-               error_message += 'fetch_top_5_closed_PR_since()'
+               error_message += '\n------------------------------'
+               error_message += '\nfetch_top_5_closed_PR_since()'
                error_message += `\nrepo_full_name: ${repo_full_name}`
                error_message += `\ndate          : ${date}`
                error_message += `\nurl           : ${url}`
                error_message += `\nJSON          : ${JSON.stringify(data, null, 2)}` // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
-               error_message += '---------------------------------'
+               error_message += '\n------------------------------'
                throw error_message
             }
             return data
