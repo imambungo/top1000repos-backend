@@ -111,7 +111,7 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
                error_message += `\nrepo_full_name: ${repo_full_name}`
                error_message += `\ndate          : ${date}`
                error_message += `\nurl           : ${url}`
-               error_message += `\nJSON          : ${data}`
+               error_message += `\nJSON          : ${data.toString()}`
                throw error_message
             }
             return data
