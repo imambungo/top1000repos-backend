@@ -97,7 +97,7 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
          G_fetch_quota--
          const repository_id = await get_repo_id(sql, repo_full_name)
          let total_thumbs_up_of_top_5_closed_pr_since_1_year = 0
-         top_5_closed_pr.forEach(pr => total_thumbs_up_of_top_5_closed_pr_since_1_year += pr.reactions['+1']) // if error "undefined", it means API rate limit exceeded
+         top_5_closed_pr.forEach(pr => total_thumbs_up_of_top_5_closed_pr_since_1_year += pr.reactions['+1'])
          await pgv.increment('top_5_closed_pr_daily_fetch_count')
          if (repo_number % 200 == 0) console.log(`fetched top 5 closed PR (repo ${repo_number})`)
          await sql`UPDATE repository SET num_of_closed_pr_since_1_year = ${num_of_closed_pr_since_1_year}, total_thumbs_up_of_top_5_closed_pr_since_1_year = ${total_thumbs_up_of_top_5_closed_pr_since_1_year} WHERE id = ${repository_id};`
@@ -125,7 +125,12 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
          G_fetch_quota--
          const repository_id = await get_repo_id(sql, repo_full_name)
          let total_thumbs_up_of_top_5_closed_issues_since_1_year = 0
-         top_5_closed_issues.forEach(issue => total_thumbs_up_of_top_5_closed_issues_since_1_year += issue.reactions['+1']) // if error "undefined", it means API rate limit exceeded
+         try {
+            top_5_closed_issues.forEach(issue => total_thumbs_up_of_top_5_closed_issues_since_1_year += issue.reactions['+1'])
+         } catch (e) {
+            console.log(e)
+            throw `repo_full_name: ${repo_full_name}`
+         }
          await pgv.increment('top_5_closed_issues_daily_fetch_count')
          if (repo_number % 200 == 0) console.log(`fetched top 5 closed issues (repo ${repo_number})`)
          await sql`UPDATE repository SET num_of_closed_issues_since_1_year = ${num_of_closed_issues_since_1_year}, total_thumbs_up_of_top_5_closed_issues_since_1_year = ${total_thumbs_up_of_top_5_closed_issues_since_1_year} WHERE id = ${repository_id};`
