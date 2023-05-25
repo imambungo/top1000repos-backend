@@ -106,8 +106,8 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
             const url = `https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:issue%20closed:%3E${date}%20repo:${repo_full_name}`
             try {
                const response = await fetch(url, fetchOptions) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
-               if (!response.ok) throw response
                const data = await response.json()
+               if (!response.ok) throw data // https://stackoverflow.com/a/38236296/9157799
                return data
             } catch (e) {
                console.log('-------------------')
@@ -117,6 +117,7 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
                exception_message += `\ndate          : ${date}`
                exception_message += `\nurl           : ${url}`
                throw exception_message
+               console.log('-------------------')
             }
          }
 
