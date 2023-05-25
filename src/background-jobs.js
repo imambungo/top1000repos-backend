@@ -129,7 +129,11 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
             top_5_closed_issues.forEach(issue => total_thumbs_up_of_top_5_closed_issues_since_1_year += issue.reactions['+1'])
          } catch (e) {
             console.log(e)
-            throw `repo_full_name: ${repo_full_name}`
+            const url = `https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:issue%20closed:%3E${a_year_ago()}%20repo:${repo_full_name}`
+            let exception_message = '\nCUSTOM EXCEPTION top_5_closed_issues "undefined"'
+            exception_message += `\nrepo_full_name: ${repo_full_name}`
+            exception_message += `\nurl           : ${url}`
+            throw exception_message
          }
          await pgv.increment('top_5_closed_issues_daily_fetch_count')
          if (repo_number % 200 == 0) console.log(`fetched top 5 closed issues (repo ${repo_number})`)
