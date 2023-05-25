@@ -103,9 +103,20 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
          await sql`UPDATE repository SET num_of_closed_pr_since_1_year = ${num_of_closed_pr_since_1_year}, total_thumbs_up_of_top_5_closed_pr_since_1_year = ${total_thumbs_up_of_top_5_closed_pr_since_1_year} WHERE id = ${repository_id};`
       } else if (await pgv.get('top_5_closed_issues_daily_fetch_count') < 1000) { // fetch top 5 CLOSED ISSUES and stuff
          const fetch_top_5_closed_issues_since = async (repo_full_name, date) => { // fetch top 5 closed issues of the last 365 days
-            const response = await fetch(`https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:issue%20closed:%3E${date}%20repo:${repo_full_name}`, fetchOptions) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
-            const data = await response.json()
-            return data
+            const url = `https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:issue%20closed:%3E${date}%20repo:${repo_full_name}`
+            try {
+               const response = await fetch(url, fetchOptions) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
+               const data = await response.json()
+               return data
+            } catch (e) {
+               console.log('-------------------')
+               console.log(e)
+               let exception_message = 'CUSTOM EXCEPTION fetch_top_5_closed_issues_since()'
+               exception_message += `\nrepo_full_name: ${repo_full_name}`
+               exception_message += `\ndate          : ${date}`
+               exception_message += `\nurl           : ${url}`
+               throw exception_message
+            }
          }
 
          const repo_number = await pgv.get('top_5_closed_issues_daily_fetch_count') + 1
