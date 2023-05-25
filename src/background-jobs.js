@@ -79,6 +79,9 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
             const response = await fetch(url, fetchOptions) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
             const data = await response.json()
             if (!response.ok) { // https://stackoverflow.com/a/38236296/9157799
+               // MAYBE TODO: When
+               //               "The listed users and repositories cannot be searched either because the resources do not exist or you do not have permission to view them."
+               //             then delete the repo from the database. Restarting the app won't remove it from the db unless it's been 24 hours. See clear_outdated_repos()
                let error_message = 'ERROR'
                error_message += '\n------------------------------'
                error_message += '\nfetch_top_5_closed_PR_since()'
