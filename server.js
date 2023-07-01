@@ -28,7 +28,8 @@ server.get('/repositories', async (req, res) => {
 	const sendToTelegram = async () => {
 		const requestBody = {
 			"chat_id": process.env.TELEGRAM_USER_ID,
-			"text": "`GET /repositories`"
+			"text": "`GET /repositories`",
+			"parse_mode": "MarkdownV2" // https://core.telegram.org/bots/api#formatting-options
 		}
 		await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
 			 method: 'POST',
