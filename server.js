@@ -25,7 +25,7 @@ server.get('/repositories', async (req, res) => {
 
 	await pgv.increment('visitor_count')
 
-	const sendToTelegram = async () => {
+	const sendToTelegram = async () => { // https://core.telegram.org/bots/api#sendmessage
 		const requestBody = {
 			"chat_id": process.env.TELEGRAM_USER_ID,
 			"text": "`GET /repositories`",
