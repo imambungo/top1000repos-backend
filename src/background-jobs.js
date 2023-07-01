@@ -165,13 +165,13 @@ let taskCheckGithubApiVersions = Cron('59 4 * * *', async () =>  { // “At 04:5
    console.log(await fetch_github_api_versions())
 })
 
-console.log(`${await pgv.get('visitor_count')}  visitors`)
+//console.log(`${await pgv.get('visitor_count')}  visitors`)
 pgv.set('visitor_count', 0)
 let taskVisitorCountPerHour = Cron('0 * * * *', async () => {  // minute 0 every hour
    const time = () => {
       return new Date().toISOString().slice(11, 16) // https://stackoverflow.com/a/35922073/9157799
    }
-   console.log(`${today()} ${time()}  ${await pgv.get('visitor_count')}  visitors (past hour)`)
+   //console.log(`${today()} ${time()}  ${await pgv.get('visitor_count')}  visitors (past hour)`)
    await pgv.set('visitor_count', 0)
 })
 

@@ -10,7 +10,7 @@ const pgv = persistent_global_variable(sql)
 // })
 
 server.get('/repositories', async (req, res) => {
-	//console.log('GET /repositories')
+	console.log('GET /repositories')
 	let repos = await sql`
 		SELECT
 			id, full_name, html_url, description, last_commit_date, stargazers_count, archived, topics, last_verified_at, num_of_closed_pr_since_1_year, open_issues_count, total_thumbs_up_of_top_5_closed_pr_since_1_year, total_thumbs_up_of_top_5_closed_issues_since_1_year, total_thumbs_up_of_top_5_open_issue_of_all_time, has_issues
