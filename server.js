@@ -22,5 +22,19 @@ server.get('/repositories', async (req, res) => {
 		last_verified_at: repo.last_verified_at.toISOString().slice(0, 10), // "2022-10-18T00:00:00.000Z" -> "2022-10-18" | https://stackoverflow.com/a/35922073/9157799
 	}))
 	res.send(repos)
+
 	await pgv.increment('visitor_count')
+
+	const sendToTelegram = async () => {
+		const requestBody = {
+			"chat_id": process.env.TELEGRAM_USER_ID,
+			"text": "`GET /repositories`"
+		}
+		await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
+			 method: 'POST',
+			 body: JSON.stringify(requestBody),
+			 headers: { 'Content-Type': 'application/json' }
+		})
+	}
+	await sendToTelegram()
 })
