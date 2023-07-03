@@ -40,7 +40,7 @@ server.post('/send-report', async (req, res) => {
 const sendToTelegram = async (message) => { // https://core.telegram.org/bots/api#sendmessage
 	const requestBody = {
 		'chat_id': process.env.TELEGRAM_USER_ID,
-		'text': message,
+		'text': `<code>${message}</code>`,
 		'parse_mode': 'HTML' // https://core.telegram.org/bots/api#formatting-options | https://stackoverflow.com/a/49538689/9157799
 	}
 	return await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
