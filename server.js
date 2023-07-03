@@ -21,21 +21,26 @@ server.get('/repositories', async (req, res) => {
 		last_commit_date: repo.last_commit_date.toISOString().slice(0, 10), // "2022-10-18T00:00:00.000Z" -> "2022-10-18" | https://stackoverflow.com/a/35922073/9157799
 		last_verified_at: repo.last_verified_at.toISOString().slice(0, 10), // "2022-10-18T00:00:00.000Z" -> "2022-10-18" | https://stackoverflow.com/a/35922073/9157799
 	}))
-	res.send(repos)
+	res.send(repos) // res.send() is equal to res.json()
 
 	await pgv.increment('visitor_count')
 
-	const sendToTelegram = async () => { // https://core.telegram.org/bots/api#sendmessage
-		const requestBody = {
-			"chat_id": process.env.TELEGRAM_USER_ID,
-			"text": "`GET /repositories`",
-			"parse_mode": "MarkdownV2" // https://core.telegram.org/bots/api#formatting-options
-		}
-		await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
-			 method: 'POST',
-			 body: JSON.stringify(requestBody),
-			 headers: { 'Content-Type': 'application/json' }
-		})
-	}
-	await sendToTelegram()
+	await sendToTelegram('`GET /repositories`')
 })
+
+server.post('/send-report', async (req, res) => {
+	await sendToTelegram(req.body.message)
+})
+
+const sendToTelegram = async (message) => { // https://core.telegram.org/bots/api#sendmessage
+	const requestBody = {
+		'chat_id': process.env.TELEGRAM_USER_ID,
+		'text': message,
+		'parse_mode': 'MarkdownV2' // https://core.telegram.org/bots/api#formatting-options
+	}
+	await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
+		 method: 'POST',
+		 body: JSON.stringify(requestBody),
+		 headers: { 'Content-Type': 'application/json' }
+	})
+}

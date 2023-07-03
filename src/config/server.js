@@ -21,4 +21,6 @@ server.use(cors(corsOptions))
 import compression from 'compression' // https://www.npmjs.com/package/compression#expressconnect
 server.use(compression())
 
+server.use(express.json()) // for parsing application/json req.body | https://stackoverflow.com/a/43626891/9157799
+
 export default server
