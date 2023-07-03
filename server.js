@@ -33,9 +33,12 @@ server.post('/send-report', async (req, res) => {
 		'ok': true
 	})
 
-	const message = req.body.message
-	console.log(message)
-	await sendToTelegram(message)
+	console.log(req.body.message)
+	try {
+		await sendToTelegram(req.body.message)
+	} catch (e) {
+		console.log(e)
+	}
 })
 
 const sendToTelegram = async (message) => { // https://core.telegram.org/bots/api#sendmessage
