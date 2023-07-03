@@ -35,7 +35,9 @@ server.post('/send-report', async (req, res) => {
 
 	console.log(req.body.message)
 	try {
-		await sendToTelegram(req.body.message)
+		const response = await sendToTelegram(req.body.message)
+		const data = await response.json()
+		if (!response.ok) console.log(JSON.stringify(data, null, 2))
 	} catch (e) {
 		console.log(e)
 	}
@@ -47,7 +49,7 @@ const sendToTelegram = async (message) => { // https://core.telegram.org/bots/ap
 		'text': message,
 		'parse_mode': 'MarkdownV2' // https://core.telegram.org/bots/api#formatting-options
 	}
-	await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
+	return await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
 		 method: 'POST',
 		 body: JSON.stringify(requestBody),
 		 headers: { 'Content-Type': 'application/json' }
