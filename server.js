@@ -26,6 +26,7 @@ server.get('/repositories', async (req, res) => {
 
 	console.log('GET /repositories')
 	await sendToTelegram('`GET /repositories`')
+	await sendToTelegram('hei')
 })
 
 server.post('/send-report', async (req, res) => {
