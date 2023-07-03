@@ -25,7 +25,7 @@ server.get('/repositories', async (req, res) => {
 	await pgv.increment('visitor_count')
 
 	console.log('GET /repositories')
-	await sendToTelegram('`GET /repositories`')
+	await sendToTelegram('GET /repositories')
 })
 
 server.post('/send-report', async (req, res) => {
@@ -34,20 +34,14 @@ server.post('/send-report', async (req, res) => {
 	})
 
 	console.log(req.body.message)
-	try {
-		const response = await sendToTelegram(req.body.message)
-		const data = await response.json()
-		if (!response.ok) console.log(JSON.stringify(data, null, 2))
-	} catch (e) {
-		console.log(e)
-	}
+	await sendToTelegram(req.body.message)
 })
 
 const sendToTelegram = async (message) => { // https://core.telegram.org/bots/api#sendmessage
 	const requestBody = {
 		'chat_id': process.env.TELEGRAM_USER_ID,
 		'text': message,
-		'parse_mode': 'MarkdownV2' // https://core.telegram.org/bots/api#formatting-options
+		'parse_mode': 'HTML' // https://core.telegram.org/bots/api#formatting-options | https://stackoverflow.com/a/49538689/9157799
 	}
 	return await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
 		 method: 'POST',
