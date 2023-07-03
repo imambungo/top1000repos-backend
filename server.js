@@ -30,8 +30,9 @@ server.get('/repositories', async (req, res) => {
 
 server.post('/send-report', async (req, res) => {
 	console.log(req.body.message)
+	console.log(req.body.message)
 	const response = await sendToTelegram(req.body.message)
-	const data = await response.json()
+	//const data = await response.json()
 	if (!response.ok) { // https://stackoverflow.com/a/38236296/9157799
 		console.log('not OK (200)')
 	}
