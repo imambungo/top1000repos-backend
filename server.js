@@ -5,6 +5,8 @@ import server from './src/config/server.js'
 import persistent_global_variable from './src/lib/persistent_global_variable.js'
 const pgv = persistent_global_variable(sql)
 
+import iso from 'iso-3166-1' // to get country name from ISO's Alpha-2 country code | https://www.npmjs.com/package/iso-3166-1 | https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+
 // server.get('/', (req, res) => {
 // 	res.send('Hello World!')
 // })
@@ -32,7 +34,12 @@ server.get('/repositories', async (req, res) => {
 			if (!response.ok) { // if API error | https://stackoverflow.com/a/38236296/9157799
 				console.log(`API error:\n${JSON.stringify(data, null, 2)}`) // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
 			}
-			return data?.country || 'API error'
+			if (data?.country) { // if no API error
+				const isoAlpha2 = data.country // https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes | https://country.is/
+				const { country } = iso.whereAlpha2(isoAlpha2) // https://www.npmjs.com/package/iso-3166-1#usage
+				return country
+			}
+			return 'API error'
 		}
 		country = await fetchCountry(req.ip) // // https://stackoverflow.com/a/45415758/9157799
 	} catch (error) {
@@ -40,7 +47,7 @@ server.get('/repositories', async (req, res) => {
 		country = 'Technical error'
 	}
 	console.log(`${req.ip}\nCountry: ${country}`) // https://stackoverflow.com/a/45415758/9157799
-	await sendToTelegram(`${req.ip}\nCountry: ${country}`)
+	await sendToTelegram(`<code>${req.ip}</code>\nCountry: ${country}`)
 })
 
 server.post('/send-report', async (req, res) => {
