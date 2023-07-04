@@ -40,7 +40,7 @@ server.get('/repositories', async (req, res) => {
 		country = 'Technical error'
 	}
 	console.log(`${req.ip}\nCountry: ${country}`) // https://stackoverflow.com/a/45415758/9157799
-	await sendToTelegram(`${req.ip}<br>Country: ${country}`)
+	await sendToTelegram(`${req.ip}\nCountry: ${country}`)
 })
 
 server.post('/send-report', async (req, res) => {
