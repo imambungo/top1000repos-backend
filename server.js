@@ -32,6 +32,7 @@ server.get('/repositories', async (req, res) => {
 			if (!response.ok) { // if API error | https://stackoverflow.com/a/38236296/9157799
 				console.log(`API error:\n${JSON.stringify(data, null, 2)}`) // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
 			}
+			console.log('data: ' + data)
 			return data?.country || 'API error'
 		}
 		country = await fetchCountry(req.ip) // // https://stackoverflow.com/a/45415758/9157799
