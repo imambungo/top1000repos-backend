@@ -24,8 +24,8 @@ server.get('/repositories', async (req, res) => {
 
 	await pgv.increment('visitor_count')
 
-	console.log('GET /repositories')
-	await sendToTelegram('GET /repositories')
+	console.log(`GET /repositories ${req.ip}`) // https://stackoverflow.com/a/45415758/9157799
+	await sendToTelegram(`GET /repositories ${req.ip}`)
 })
 
 server.post('/send-report', async (req, res) => {

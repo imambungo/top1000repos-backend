@@ -23,4 +23,6 @@ server.use(compression())
 
 server.use(express.json()) // for parsing application/json req.body | https://stackoverflow.com/a/43626891/9157799
 
+server.set('trust proxy', true) // to get ip address even when using a reverse proxy | https://stackoverflow.com/a/45415758/9157799
+
 export default server
