@@ -24,8 +24,23 @@ server.get('/repositories', async (req, res) => {
 
 	await pgv.increment('visitor_count')
 
-	console.log(`GET /repositories ${req.ip}`) // https://stackoverflow.com/a/45415758/9157799
-	await sendToTelegram(`GET /repositories ${req.ip}`)
+	let country = ''
+	try {
+		const fetchCountry = async (ip) => {
+			const response = await fetch(`https://api.country.is/${ip}`) // https://country.is/
+			const data = response.json()
+			if (!response.ok) { // if API error | https://stackoverflow.com/a/38236296/9157799
+				console.log(`API error:\n${JSON.stringify(data, null, 2)}`) // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
+			}
+			return data?.country || 'API error'
+		}
+		country = await fetchCountry(req.ip) // // https://stackoverflow.com/a/45415758/9157799
+	} catch (error) {
+		console.log('Technical error:\n' + error)
+		country = 'Technical error'
+	}
+	console.log(`GET /repositories\n${req.ip}\nCountry: ${country}`) // https://stackoverflow.com/a/45415758/9157799
+	await sendToTelegram(`GET /repositories<br>${req.ip}<br>Country: ${country}`)
 })
 
 server.post('/send-report', async (req, res) => {
