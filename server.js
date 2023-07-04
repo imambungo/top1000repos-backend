@@ -39,8 +39,8 @@ server.get('/repositories', async (req, res) => {
 		console.log('Technical error:\n' + error)
 		country = 'Technical error'
 	}
-	console.log(`GET /repositories\n${req.ip}\nCountry: ${country}`) // https://stackoverflow.com/a/45415758/9157799
-	await sendToTelegram(`GET /repositories<br>${req.ip}<br>Country: ${country}`)
+	console.log(`${req.ip}\nCountry: ${country}`) // https://stackoverflow.com/a/45415758/9157799
+	await sendToTelegram(`${req.ip}<br>Country: ${country}`)
 })
 
 server.post('/send-report', async (req, res) => {
@@ -55,12 +55,16 @@ server.post('/send-report', async (req, res) => {
 const sendToTelegram = async (message) => { // https://core.telegram.org/bots/api#sendmessage
 	const requestBody = {
 		'chat_id': process.env.TELEGRAM_USER_ID,
-		'text': `<code>${message}</code>`,
+		'text': message,
 		'parse_mode': 'HTML' // https://core.telegram.org/bots/api#formatting-options | https://stackoverflow.com/a/49538689/9157799
 	}
-	return await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
+	const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
 		 method: 'POST',
 		 body: JSON.stringify(requestBody),
 		 headers: { 'Content-Type': 'application/json' }
 	})
+	const data = await response.json()
+	if (!response.ok) { // if API error | https://stackoverflow.com/a/38236296/9157799
+		console.log(`API error:\n${JSON.stringify(data, null, 2)}`) // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
+	}
 }
