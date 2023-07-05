@@ -53,8 +53,8 @@ server.get('/repositories', async (req, res) => {
 		console.log('Technical error:\n' + error)
 		country = `Technical error\nhttps://api.country.is/${req.ip}`
 	}
-	console.log(`${req.ip}\nCountry: ${country}`) // https://stackoverflow.com/a/45415758/9157799
-	await sendToTelegram(`<code>${req.ip}</code>\nCountry: ${country}`)
+	console.log(`${req.ip}\nCountry: ${country}\nUser-Agent: ${req.get('user-agent')}`) // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent | https://expressjs.com/en/5x/api.html#req.get
+	await sendToTelegram(`<code>${req.ip}</code>\nCountry: ${country}\nUser-Agent: ${req.get('user-agent')}`)
 })
 
 server.post('/send-report', async (req, res) => {
