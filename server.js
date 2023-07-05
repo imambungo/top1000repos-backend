@@ -30,8 +30,9 @@ server.get('/repositories', async (req, res) => {
 	try {
 		const fetchCountry = async (ip) => {
 			const response = await fetch(`https://api.country.is/${ip}`) // https://country.is/
+			let data
 			try {
-				const data = await response.json()
+				data = await response.json()
 			} catch (error) {
 				console.log('Technical error (json)')
 				console.log('await response.text():')
