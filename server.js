@@ -32,7 +32,8 @@ server.get('/repositories', async (req, res) => {
 			const response = await fetch(`https://api.country.is/${ip}`) // https://country.is/
 			let data
 			try {
-				data = await response.json()
+				const response2 = response.clone() // https://stackoverflow.com/q/34786358/9157799#comment86228774_35000918
+				data = await response2.json()      // https://stackoverflow.com/q/34786358/9157799#comment86228774_35000918
 			} catch (error) {
 				console.log('Technical error (json)')
 				console.log('await response.text():')
