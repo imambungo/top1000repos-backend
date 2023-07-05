@@ -30,7 +30,14 @@ server.get('/repositories', async (req, res) => {
 	try {
 		const fetchCountry = async (ip) => {
 			const response = await fetch(`https://api.country.is/${ip}`) // https://country.is/
-			const data = await response.json()
+			try {
+				const data = await response.json()
+			} catch (error) {
+				console.log('Technical error (json)')
+				console.log('await response.text():')
+				console.log(await response.text()) // https://stackoverflow.com/a/64072468/9157799
+				throw error
+			}
 			if (!response.ok) { // if API error | https://stackoverflow.com/a/38236296/9157799
 				console.log(`API error:\n${JSON.stringify(data, null, 2)}`) // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
 			}
