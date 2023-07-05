@@ -44,7 +44,7 @@ server.get('/repositories', async (req, res) => {
 		country = await fetchCountry(req.ip) // // https://stackoverflow.com/a/45415758/9157799
 	} catch (error) {
 		console.log('Technical error:\n' + error)
-		country = 'Technical error'
+		country = `Technical error\nhttps://api.country.is/${req.ip}`
 	}
 	console.log(`${req.ip}\nCountry: ${country}`) // https://stackoverflow.com/a/45415758/9157799
 	await sendToTelegram(`<code>${req.ip}</code>\nCountry: ${country}`)
