@@ -60,7 +60,7 @@ server.get('/repositories', async (req, res) => {
 	await sendToTelegram(`<code>${req.ip}</code>\nCountry: ${country}\nUser-Agent: ${req.get('user-agent')}`)
 })
 
-server.post('/send-report', async (req, res) => {
+server.get('/send-report', async (req, res) => {
 	res.send({
 		'ok': true
 	})
