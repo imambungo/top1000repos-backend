@@ -37,11 +37,12 @@ server.get('/repositories', async (req, res) => {
 			} catch (error) {
 				console.log('Technical error (json)')
 				console.log('await response.text():')
+				console.log('STATUS: ' + response.status)
 				console.log(await response.text()) // https://stackoverflow.com/a/64072468/9157799
 				throw error
 			}
 			if (!response.ok) { // if API error | https://stackoverflow.com/a/38236296/9157799
-				console.log(`API error:\n${JSON.stringify(data, null, 2)}`) // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
+				console.log(`API error:\n${response.status} ${JSON.stringify(data, null, 2)}`) // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
 			}
 			if (data?.country) { // if no API error
 				const isoAlpha2 = data.country // https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes | https://country.is/
@@ -81,6 +82,6 @@ const sendToTelegram = async (message) => { // https://core.telegram.org/bots/ap
 	})
 	const data = await response.json()
 	if (!response.ok) { // if API error | https://stackoverflow.com/a/38236296/9157799
-		console.log(`API error:\n${JSON.stringify(data, null, 2)}`) // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
+		console.log(`API error:\n${response.status} ${JSON.stringify(data, null, 2)}`) // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
 	}
 }
