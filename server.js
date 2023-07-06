@@ -65,8 +65,8 @@ server.get('/send-report', async (req, res) => {
 		'ok': true
 	})
 
-	console.log(req.body.message)
-	await sendToTelegram(req.body.message)
+	console.log(req.query.message) // https://stackoverflow.com/a/69230317/9157799 | https://stackoverflow.com/a/18524191/9157799
+	await sendToTelegram(req.query.message)
 })
 
 const sendToTelegram = async (message) => { // https://core.telegram.org/bots/api#sendmessage
