@@ -49,13 +49,17 @@ server.get('/repositories', async (req, res) => {
 			}
 			return 'API error'
 		}
-		country = await fetchCountry(req.ip) // // https://stackoverflow.com/a/45415758/9157799
+		country = await fetchCountry(req.ip) // https://stackoverflow.com/a/45415758/9157799
 	} catch (error) {
-		console.log('Technical error:\n' + error)
-		country = `Technical error\nhttps://api.country.is/${req.ip}`
+		console.log('TECHNICAL ERROR fetchCountry():\n' + error)
+		country = `(technical error) https://api.country.is/${req.ip}`
 	}
-	console.log(`${req.ip}\nCountry: ${country}\nUser-Agent: ${req.get('user-agent')}`) // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent | https://expressjs.com/en/5x/api.html#req.get
-	await sendToTelegram(`<code>${req.ip}</code>\nCountry: ${country}\nUser-Agent: ${req.get('user-agent')}`)
+	let message = ''
+	message += `Country: ${country}`
+	message += `\nReferrer: ${req.get('Referrer')}` // https://stackoverflow.com/a/28238737/9157799 | https://expressjs.com/en/5x/api.html#req.get
+	message += `\nUser-Agent: ${req.get('user-agent')}` // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
+	console.log(message)
+	await sendToTelegram(message)
 })
 
 server.get('/send-report', async (req, res) => {
