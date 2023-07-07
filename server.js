@@ -35,10 +35,8 @@ server.get('/repositories', async (req, res) => {
 				const response2 = response.clone() // https://stackoverflow.com/q/34786358/9157799#comment86228774_35000918
 				data = await response2.json()      // https://stackoverflow.com/q/34786358/9157799#comment86228774_35000918
 			} catch (error) {
-				console.log('Technical error (json)')
-				console.log('await response.text():')
-				console.log('STATUS: ' + response.status)
-				console.log(await response.text()) // https://stackoverflow.com/a/64072468/9157799
+				console.log('Technical error')
+				console.log('HTTP response status code: ' + response.status) // https://stackoverflow.com/q/37280274/9157799#comment135100173_64072468 | https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 				throw error
 			}
 			if (!response.ok) { // if API error | https://stackoverflow.com/a/38236296/9157799
