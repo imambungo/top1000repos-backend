@@ -56,7 +56,6 @@ server.get('/repositories', async (req, res) => {
 	}
 	let message = ''
 	message += `Country: ${country}`
-	message += `\nReferrer: ${req.get('Referrer')}` // https://stackoverflow.com/a/28238737/9157799 | https://expressjs.com/en/5x/api.html#req.get
 	message += `\nUser-Agent: ${req.get('user-agent')}` // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
 	console.log(message)
 	await sendToTelegram(message)
