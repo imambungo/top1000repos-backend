@@ -30,24 +30,16 @@ server.get('/repositories', async (req, res) => {
 	try {
 		const fetchCountry = async (ip) => {
 			const response = await fetch(`https://api.country.is/${ip}`) // https://country.is/
-			let data
-			try {
-				const response2 = response.clone() // https://stackoverflow.com/q/34786358/9157799#comment86228774_35000918
-				data = await response2.json()      // https://stackoverflow.com/q/34786358/9157799#comment86228774_35000918
-			} catch (error) {
-				console.log('Technical error')
-				console.log('HTTP response status code: ' + response.status) // https://stackoverflow.com/q/37280274/9157799#comment135100173_64072468 | https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-				throw error
-			}
-			if (!response.ok) { // if API error | https://stackoverflow.com/a/38236296/9157799
-				console.log(`API error:\n${response.status} ${JSON.stringify(data, null, 2)}`) // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
-			}
-			if (data?.country) { // if no API error
+			if (response.ok) { // https://developer.mozilla.org/en-US/docs/Web/API/Response/ok
+				const data = await response.json()
 				const isoAlpha2 = data.country // https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes | https://country.is/
 				const { country } = iso.whereAlpha2(isoAlpha2) // https://www.npmjs.com/package/iso-3166-1#usage
 				return country
+			} else {
+				let message = `ERROR ${response.status} fetchCountry(${ip})` // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+				if (response.status == 400) message += `\n${JSON.stringify(data, null, 2)}` // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
+				return message
 			}
-			return 'API error'
 		}
 		country = await fetchCountry(req.ip) // https://stackoverflow.com/a/45415758/9157799
 	} catch (error) {
