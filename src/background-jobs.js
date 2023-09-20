@@ -20,6 +20,13 @@ const fetchOptions = {headers: apiRequestHeaders} // https://developer.mozilla.o
 
 let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
    if (G_fetch_quota > 0) {
+      const get_repo_new_name = async (repo_full_name) => {  // When the name of the repo or owner is changed, the search API can't detect the new name.
+         const url = `https://api.github.com/repos/${repo_full_name}`
+         const response = await fetch(url, fetchOptions)
+         const data = await response.json()
+         return data.full_name
+      }
+
       if (await pgv.get('server_last_active_date') != today()) { // in UTC: https://stackoverflow.com/a/74234498/9157799 | different SQL statement should be splitted: https://github.com/porsager/postgres/issues/86#issuecomment-668217732
          pgv.set('repo_daily_fetch_count', 0)
          pgv.set('top_5_closed_pr_daily_fetch_count', 0)
@@ -97,7 +104,15 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
 
          const repo_number = await pgv.get('top_5_closed_pr_daily_fetch_count') + 1
          const repo_full_name = await get_repo_full_name(sql, repo_number)
-         const { total_count: num_of_closed_pr_since_1_year, items: top_5_closed_pr } = await fetch_top_5_closed_PR_since(repo_full_name, a_year_ago())
+         let num_of_closed_pr_since_1_year, top_5_closed_pr // https://stackoverflow.com/q/59416204/9157799
+         try {
+            ;( { total_count: num_of_closed_pr_since_1_year, items: top_5_closed_pr } = await fetch_top_5_closed_PR_since(repo_full_name, a_year_ago()) ) // https://stackoverflow.com/q/59416204/9157799
+         } catch (e) {
+            console.log(e)
+            const repo_new_name = await get_repo_new_name(repo_full_name)
+            await sql`UPDATE repository SET full_name = ${repo_new_name} WHERE full_name = ${repo_full_name}`
+            return
+         }
          G_fetch_quota--
          const repository_id = await get_repo_id(sql, repo_full_name)
          let total_thumbs_up_of_top_5_closed_pr_since_1_year = 0
@@ -126,7 +141,15 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
 
          const repo_number = await pgv.get('top_5_closed_issues_daily_fetch_count') + 1
          const repo_full_name = await get_repo_full_name(sql, repo_number)
-         const { total_count: num_of_closed_issues_since_1_year, items: top_5_closed_issues } = await fetch_top_5_closed_issues_since(repo_full_name, a_year_ago())
+         let num_of_closed_issues_since_1_year, top_5_closed_issues // https://stackoverflow.com/q/59416204/9157799
+         try {
+            ;( { total_count: num_of_closed_issues_since_1_year, items: top_5_closed_issues } = await fetch_top_5_closed_issues_since(repo_full_name, a_year_ago()) ) // https://stackoverflow.com/q/59416204/9157799
+         } catch (e) {
+            console.log(e)
+            const repo_new_name = await get_repo_new_name(repo_full_name)
+            await sql`UPDATE repository SET full_name = ${repo_new_name} WHERE full_name = ${repo_full_name}`
+            return
+         }
          G_fetch_quota--
          const repository_id = await get_repo_id(sql, repo_full_name)
          let total_thumbs_up_of_top_5_closed_issues_since_1_year = 0
