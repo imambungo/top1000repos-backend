@@ -43,12 +43,12 @@ server.get('/repositories', async (req, res) => {
 	// }
 	// country = await fetchCountry(req.ip) // https://stackoverflow.com/a/45415758/9157799
 
-	const userAgent = req.get('user-agent') // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
-	if (!userAgent.includes('Googlebot') && !userAgent.includes('bingbot') && !userAgent.includes('AhrefsBot')) {
-		const message = `User-Agent: ${userAgent}`
-		console.log(message)
-		await sendToTelegram(message)
-	}
+	// const userAgent = req.get('user-agent') // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
+	// if (!userAgent.includes('Googlebot') && !userAgent.includes('bingbot') && !userAgent.includes('AhrefsBot')) {
+	// 	const message = `User-Agent: ${userAgent}`
+	// 	console.log(message)
+	// 	await sendToTelegram(message)
+	// }
 })
 
 server.get('/send-report', async (req, res) => {
