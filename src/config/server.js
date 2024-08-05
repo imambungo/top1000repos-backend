@@ -6,8 +6,7 @@ import * as dotenv from 'dotenv' // see https://www.npmjs.com/package/dotenv#usa
 dotenv.config()
 
 const port = process.env.PORT
-//server.listen(port, '0.0.0.0') // https://stackoverflow.com/a/33957043/9157799
-server.listen(port, () => { // railway.app: Looks like your app is listening on 127.0.0.1. You may need to listen on 0.0.0.0 instead.
+server.listen(port, () => {
 	console.log(`server listening on port ${port} (${process.env.HOST}:${port})`)
 })
 
