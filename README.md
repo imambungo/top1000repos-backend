@@ -10,11 +10,13 @@
 ### 3. Setup environment variables
 
 ```
+# for the server
 HOST='http://localhost'
 PORT=3000
 
+# for database
 PGUSER='postgres'
-PGPASSWORD="devgithub_top_repos"
+PGPASSWORD="somethingsomething"
 PGDATABASE='github_top_repos'
 
 GITHUB_API_TOKEN='blablablaSomethingsomething'
