@@ -12,4 +12,4 @@ await sql`
 					  ('visitor_count', '0');
 `
 
-throw 'SUCCESS! THIS IS NOT AN ERROR!' // creating database instance cause the script to persist (idle) | https://stackoverflow.com/a/7223319/9157799
+await sql.end()
