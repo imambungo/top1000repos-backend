@@ -13,6 +13,7 @@
 # for the server
 HOST='http://localhost'
 PORT=3000
+FRONTEND_ORIGIN='http://localhost:5173'
 
 # for database
 PGUSER='postgres'
@@ -20,7 +21,6 @@ PGPASSWORD="somethingsomething"
 PGDATABASE='github_top_repos'
 
 GITHUB_API_TOKEN='blablablaSomethingsomething'
-FRONTEND_ORIGIN='http://localhost:5173'
 ```
 
 ### 4. Start server with [`npm start`, `node server.js`, or `node .`](https://docs.npmjs.com/cli/commands/npm-start)
