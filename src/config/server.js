@@ -1,8 +1,8 @@
 // https://expressjs.com/en/starter/hello-world.html
-import express from 'express' // dk usah pake require: https://stackoverflow.com/a/64655153/9157799
+import express from 'express' // no need to use require: https://stackoverflow.com/a/64655153/9157799
 const server = express()
 
-import * as dotenv from 'dotenv' // see https://www.npmjs.com/package/dotenv#usage
+import * as dotenv from 'dotenv' // see https://www.npmjs.com/package/dotenv#%EF%B8%8F-usage
 dotenv.config()
 
 const port = process.env.PORT
