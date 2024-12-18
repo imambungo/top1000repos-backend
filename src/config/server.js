@@ -2,8 +2,7 @@
 import express from 'express' // no need to use require: https://stackoverflow.com/a/64655153/9157799
 const server = express()
 
-import * as dotenv from 'dotenv' // see https://www.npmjs.com/package/dotenv#%EF%B8%8F-usage
-dotenv.config()
+import 'dotenv/config' // https://www.npmjs.com/package/dotenv#%EF%B8%8F-usage
 
 const port = process.env.PORT
 server.listen(port, () => {
@@ -20,8 +19,8 @@ server.use(cors(corsOptions))
 import compression from 'compression' // https://www.npmjs.com/package/compression#expressconnect
 server.use(compression())
 
-server.use(express.json()) // for parsing application/json req.body | https://stackoverflow.com/a/43626891/9157799
+// server.use(express.json()) // for parsing application/json req.body | https://stackoverflow.com/a/43626891/9157799
 
-server.set('trust proxy', true) // to get ip address even when using a reverse proxy | https://stackoverflow.com/a/45415758/9157799
+// server.set('trust proxy', true) // to get ip address even when using a reverse proxy | https://stackoverflow.com/a/45415758/9157799
 
 export default server
