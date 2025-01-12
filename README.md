@@ -8,7 +8,7 @@ HOST='http://localhost'
 PORT=3000
 FRONTEND_ORIGIN='http://localhost:5173'
 
-# for database
+# for database: https://github.com/porsager/postgres?tab=readme-ov-file#environmental-variables
 PGUSER='postgres'
 PGPASSWORD="somethingsomething"
 PGDATABASE='github_top_repos'
