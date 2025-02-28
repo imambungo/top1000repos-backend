@@ -23,4 +23,4 @@ GITHUB_API_TOKEN='blablablaSomethingsomething'
 1. Create database "github_top_repos".
 1. [`npm run init-db-schema`](https://docs.npmjs.com/cli/using-npm/scripts)
 
-### 4. Start server with [`npm start`, `node server.js`, or `node .`](https://docs.npmjs.com/cli/commands/npm-start)
+### 4. Start server with [`npm start`](https://stackoverflow.com/q/22512992/9157799#comment83070747_40792477)
