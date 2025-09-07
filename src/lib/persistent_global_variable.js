@@ -27,6 +27,7 @@ const persistent_global_variable = sql => ({
          return JSON.parse(value)
       } catch (error) {
          if (error.message.includes("ECONNRESET")) { // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error#instance_properties
+				await sendToTelegram('catch ECONNRESET') // TEMPORARY
             await sql.end()
             const [{ value }] = await sql`SELECT value FROM persistent_global_variable WHERE name = ${name}` // https://github.com/porsager/postgres#usage
             await sendToTelegram('ECONNRESET survived') // TEMPORARY
