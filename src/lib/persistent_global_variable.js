@@ -30,6 +30,9 @@ const persistent_global_variable = sql => ({
 				console.log('catch ECONNRESET') // TEMPORARY
 				await sendToTelegram('catch ECONNRESET') // TEMPORARY
             await sql.end()
+
+				// CONNECTION_ENDED https://github.com/porsager/postgres?tab=readme-ov-file#connection_ended
+
             const [{ value }] = await sql`SELECT value FROM persistent_global_variable WHERE name = ${name}` // https://github.com/porsager/postgres#usage
 				console.log('ECONNRESET survived') // TEMPORARY
             await sendToTelegram('ECONNRESET survived') // TEMPORARY
