@@ -8,7 +8,7 @@ await sql`SELECT 1;` // if the password is wrong, throw error as early as possib
 
 const reinstantiate = async () => { // to be called when ECONNRESET is caught in a try-catch | https://github.com/porsager/postgres/issues/179
    await sql.end()
-   sql = postgres()
+   sql = postgres() // https://github.com/porsager/postgres?tab=readme-ov-file#connection_ended
    sql.reinstantiate = reinstantiate
 }
 
