@@ -27,6 +27,9 @@ const persistent_global_variable = sql => ({
 			if (connection_is_ready) {
 				const [{ value }] = await sql`SELECT value FROM persistent_global_variable WHERE name = ${name}` // https://github.com/porsager/postgres#usage
 				return JSON.parse(value)
+			} else {
+				console.log('not ready') // TEMPORARY
+				await sendToTelegram('not ready') // TEMPORARY
 			}
       } catch (error) {
          if (error.message.includes("ECONNRESET")) { // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error#instance_properties
