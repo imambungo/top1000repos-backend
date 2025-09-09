@@ -20,7 +20,7 @@ const sendToTelegram = async (message) => { // https://core.telegram.org/bots/ap
 	}
 }
 
-let connection_is_ready = true
+let connection_is_ready = true // should throw an error if not ready for 30s: https://github.com/porsager/postgres?tab=readme-ov-file#connect_timeout
 const persistent_global_variable = sql => ({
    get: async name => {
       try { // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch
