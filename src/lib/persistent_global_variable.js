@@ -20,18 +20,22 @@ const sendToTelegram = async (message) => { // https://core.telegram.org/bots/ap
 	}
 }
 
+let connection_is_ready = true
 const persistent_global_variable = sql => ({
    get: async name => {
       try { // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch
-         const [{ value }] = await sql`SELECT value FROM persistent_global_variable WHERE name = ${name}` // https://github.com/porsager/postgres#usage
-         return JSON.parse(value)
+			if (connection_is_ready) {
+				const [{ value }] = await sql`SELECT value FROM persistent_global_variable WHERE name = ${name}` // https://github.com/porsager/postgres#usage
+				return JSON.parse(value)
+			}
       } catch (error) {
          if (error.message.includes("ECONNRESET")) { // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error#instance_properties
 				console.log('catch ECONNRESET') // TEMPORARY
 				await sendToTelegram('catch ECONNRESET') // TEMPORARY
-				console.error(error)
             await sql.reinstantiate()
+				connection_is_ready = false
             const [{ value }] = await sql`SELECT value FROM persistent_global_variable WHERE name = ${name}` // https://github.com/porsager/postgres#usage
+				connection_is_ready = true
 				console.log('ECONNRESET survived') // TEMPORARY
             await sendToTelegram('ECONNRESET survived') // TEMPORARY
             return JSON.parse(value)
