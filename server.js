@@ -68,9 +68,9 @@ const send_to_telegram = async (message) => { // https://core.telegram.org/bots/
 	}
 	try { // handle ConnectTimeoutError
 		const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
-			 method: 'POST',
-			 body: JSON.stringify(requestBody),
-			 headers: { 'Content-Type': 'application/json' }
+			method: 'POST',
+			body: JSON.stringify(requestBody),
+			headers: { 'Content-Type': 'application/json' }
 		})
 		const data = await response.json()
 		if (!response.ok) { // if API/HTTP error | https://stackoverflow.com/a/38236296/9157799
