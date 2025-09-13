@@ -5,6 +5,8 @@ import server from './src/config/server.js'
 import persistent_global_variable from './src/lib/persistent_global_variable.js'
 const pgv = persistent_global_variable(sql)
 
+import { send_to_telegram } from './src/lib/send_to_telegram.js'
+
 // import iso from 'iso-3166-1' // to get country name from ISO's Alpha-2 country code | https://www.npmjs.com/package/iso-3166-1 | https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 
 // server.get('/', (req, res) => {
@@ -59,24 +61,3 @@ server.get('/send-report', async (req, res) => {
 	console.log(req.query.message) // https://stackoverflow.com/a/69230317/9157799 | https://stackoverflow.com/a/18524191/9157799
 	await send_to_telegram(req.query.message)
 })
-
-const send_to_telegram = async (message) => { // https://core.telegram.org/bots/api#sendmessage
-	const requestBody = {
-		'chat_id': process.env.TELEGRAM_USER_ID,
-		'text': message,
-		'parse_mode': 'HTML' // https://core.telegram.org/bots/api#formatting-options | https://stackoverflow.com/a/49538689/9157799
-	}
-	try { // handle ConnectTimeoutError
-		const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_API_TOKEN}/sendMessage`, {
-			method: 'POST',
-			body: JSON.stringify(requestBody),
-			headers: { 'Content-Type': 'application/json' }
-		})
-		const data = await response.json()
-		if (!response.ok) { // if API/HTTP error | https://stackoverflow.com/a/38236296/9157799
-			console.log(`API error:\n${response.status} ${JSON.stringify(data, null, 2)}`) // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
-		}
-	} catch (err) {
-		console.log(`Failed to fetch to telegram API:\n${err}`)
-	}
-}

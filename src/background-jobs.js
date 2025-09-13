@@ -10,6 +10,8 @@ import sql from './config/db.js' // https://github.com/porsager/postgres#usage
 import persistent_global_variable from './lib/persistent_global_variable.js'
 const pgv = persistent_global_variable(sql)
 
+import { send_to_telegram } from './lib/send_to_telegram.js'
+
 const githubApiVersion = '2022-11-28'
 const apiRequestHeaders = {  // https://trello.com/c/MgI1fvc5 | https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
    'X-GitHub-Api-Version': githubApiVersion,                 // https://docs.github.com/en/rest/overview/api-versions?apiVersion=2022-11-28#specifying-an-api-version
@@ -172,7 +174,9 @@ let taskCheckGithubApiVersions = Cron('59 4 * * *', async () =>  { // “At 04:5
 })
 
 let task_API_requests_per_day = Cron('57 59 23 * * *', async () => {  // At 23:59:57
-   console.log(`${today()}  ${await pgv.get('visitor_count')}  API requests.`)
+   const log_message = `${today()}  ${await pgv.get('visitor_count')}  API requests.`
+   console.log(log_message)
+   await send_to_telegram(log_message)
    await pgv.set('visitor_count', 0)
 })
 
