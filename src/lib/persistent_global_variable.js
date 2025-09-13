@@ -1,5 +1,5 @@
 // TEMPORARY
-const sendToTelegram = async (message) => { // https://core.telegram.org/bots/api#sendmessage
+const send_to_telegram = async (message) => { // https://core.telegram.org/bots/api#sendmessage
 	const requestBody = {
 		'chat_id': process.env.TELEGRAM_USER_ID,
 		'text': message,
@@ -29,22 +29,22 @@ const persistent_global_variable = sql => ({
 				return JSON.parse(value)
 			} else {
 				console.log('not ready') // TEMPORARY
-				await sendToTelegram('not ready') // TEMPORARY
+				await send_to_telegram('not ready') // TEMPORARY
 			}
       } catch (error) {
          if (error.message.includes("ECONNRESET")) { // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error#instance_properties
 				console.log('catch ECONNRESET') // TEMPORARY
-				await sendToTelegram('catch ECONNRESET') // TEMPORARY
+				await send_to_telegram('catch ECONNRESET') // TEMPORARY
             await sql.reinstantiate()
 				connection_is_ready = false
             const [{ value }] = await sql`SELECT value FROM persistent_global_variable WHERE name = ${name}` // https://github.com/porsager/postgres#usage
 				connection_is_ready = true
 				console.log('ECONNRESET survived') // TEMPORARY
-            await sendToTelegram('ECONNRESET survived') // TEMPORARY
+            await send_to_telegram('ECONNRESET survived') // TEMPORARY
             return JSON.parse(value)
          } else {
 				console.log('not ECONNRESET') // TEMPORARY
-				await sendToTelegram('not ECONNRESET') // TEMPORARY
+				await send_to_telegram('not ECONNRESET') // TEMPORARY
             console.error(error) // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/throw
          }
       }

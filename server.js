@@ -47,7 +47,7 @@ server.get('/repositories', async (req, res) => {
 	// if (!userAgent.includes('Googlebot') && !userAgent.includes('bingbot') && !userAgent.includes('AhrefsBot')) {
 	// 	const message = `User-Agent: ${userAgent}`
 	// 	console.log(message)
-	// 	await sendToTelegram(message)
+	// 	await send_to_telegram(message)
 	// }
 })
 
@@ -57,10 +57,10 @@ server.get('/send-report', async (req, res) => {
 	})
 
 	console.log(req.query.message) // https://stackoverflow.com/a/69230317/9157799 | https://stackoverflow.com/a/18524191/9157799
-	await sendToTelegram(req.query.message)
+	await send_to_telegram(req.query.message)
 })
 
-const sendToTelegram = async (message) => { // https://core.telegram.org/bots/api#sendmessage
+const send_to_telegram = async (message) => { // https://core.telegram.org/bots/api#sendmessage
 	const requestBody = {
 		'chat_id': process.env.TELEGRAM_USER_ID,
 		'text': message,
