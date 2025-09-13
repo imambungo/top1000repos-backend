@@ -7,8 +7,6 @@ const pgv = persistent_global_variable(sql)
 
 import { send_to_telegram } from './src/lib/send_to_telegram.js'
 
-// import iso from 'iso-3166-1' // to get country name from ISO's Alpha-2 country code | https://www.npmjs.com/package/iso-3166-1 | https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
-
 // server.get('/', (req, res) => {
 // 	res.send('Hello World!')
 // })
@@ -27,23 +25,6 @@ server.get('/repositories', async (req, res) => {
 	res.send(repos) // res.send() is equal to res.json()
 
 	await pgv.increment('visitor_count')
-
-	// let country = ''
-	// const fetchCountry = async (ip) => {
-	// 	const response = await fetch(`https://api.country.is/${ip}`) // https://country.is/
-	// 	if (response.ok) { // https://developer.mozilla.org/en-US/docs/Web/API/Response/ok
-	// 		const data = await response.json()
-	// 		const isoAlpha2 = data.country // https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes | https://country.is/
-	// 		const { country } = iso.whereAlpha2(isoAlpha2) // https://www.npmjs.com/package/iso-3166-1#usage
-	// 		return country
-	// 	} else {
-	// 		let message = `ERROR ${response.status} fetchCountry(${ip})` // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-	// 		message += `\nhttps://api.country.is/${ip}`
-	// 		if (response.status == 400) message += `\n${JSON.stringify(data, null, 2)}` // https://stackoverflow.com/q/5612787/9157799#comment53474797_5612849
-	// 		return message
-	// 	}
-	// }
-	// country = await fetchCountry(req.ip) // https://stackoverflow.com/a/45415758/9157799
 
 	// const userAgent = req.get('user-agent') // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
 	// if (!userAgent.includes('Googlebot') && !userAgent.includes('bingbot') && !userAgent.includes('AhrefsBot')) {
