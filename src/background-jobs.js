@@ -174,7 +174,7 @@ let taskCheckGithubApiVersions = Cron('59 4 * * *', async () =>  { // “At 04:5
 })
 
 let task_API_requests_per_day = Cron('57 59 23 * * *', async () => {  // At 23:59:57
-   const log_message = `${today()}  ${await pgv.get('visitor_count')}  API requests.`
+   const log_message = `${await pgv.get('visitor_count')}  API requests.`
    console.log(log_message)
    await send_to_telegram(log_message)
    await pgv.set('visitor_count', 0)
