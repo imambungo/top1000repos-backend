@@ -7,10 +7,6 @@ const pgv = persistent_global_variable(sql)
 
 import { send_to_telegram } from './src/lib/send_to_telegram.js'
 
-// server.get('/', (req, res) => {
-// 	res.send('Hello World!')
-// })
-
 server.get('/repositories', async (req, res) => {
 	let repos = await sql`
 		SELECT
