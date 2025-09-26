@@ -43,8 +43,8 @@ const persistent_global_variable = sql => ({
             await send_to_telegram('ECONNRESET survived') // TEMPORARY
             return JSON.parse(value)
          } else {
-				console.log('not ECONNRESET') // TEMPORARY
-				await send_to_telegram('not ECONNRESET') // TEMPORARY
+				console.log(`not ECONNRESET: pgv.get('${name}')`) // TEMPORARY
+				await send_to_telegram(`not ECONNRESET: pgv.get('${name}')`) // TEMPORARY
             console.error(error) // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/throw
          }
       }
