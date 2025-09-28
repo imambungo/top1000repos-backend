@@ -90,14 +90,17 @@ let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async
 })
 
 let task_check_github_api_versions = Cron('59 4 * * *', async () =>  { // “At 04:59.” | with 10 fetch per minute, 2000 need 200 minute or 3 hr 20 min. | https://crontab.guru/#59_4_*_*_*
-   console.log(`current GitHub API version: ${github_api_version}`)
    const fetch_supported_github_api_versions = async () => {
       const response = await fetch(`https://api.github.com/versions`, github_api_fetch_options); // https://docs.github.com/en/rest/meta/meta?apiVersion=2022-11-28#get-all-api-versions
       const data = await response.json();
       return data
    }
    const supported_api_versions = await fetch_supported_github_api_versions()
-   console.log(`supported GitHub API versions: ${supported_api_versions.join(', ')}`)
+   if (!supported_api_versions.includes(github_api_version) || supported_api_versions.length > 1) {
+      const log_message = `GitHub API version ${github_api_version} is deprecated. Supported versions: ${supported_api_versions.join(', ')}`
+      console.log(log_message)
+      await send_to_telegram(log_message)
+   }
 })
 
 let task_API_requests_per_day = Cron('57 59 23 * * *', { timezone: 'Asia/Jakarta' }, async () => {  // At 23:59:57
