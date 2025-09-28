@@ -12,11 +12,11 @@ const pgv = persistent_global_variable(sql)
 
 import { send_to_telegram } from './lib/send_to_telegram.js'
 
-import { github_api_fetch_options, github_api_version } from './github_api_fetch_options.js';
+import { github_api_fetch_options, github_api_version } from './github_api_fetch_options.js'
 
 import { upsert_repo } from './upsert_repo.js'
 
-let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
+let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
    if (G_fetch_quota > 0) {
       const get_repo_new_name = async (repo_full_name) => {  // When the name of the repo or owner is changed, the search API can't detect the new name.
          const url = `https://api.github.com/repos/${repo_full_name}`
