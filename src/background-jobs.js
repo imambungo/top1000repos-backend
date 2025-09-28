@@ -22,6 +22,7 @@ import {
 
 import { clear_outdated_repos } from './clear_outdated_repos.js'
 import { get_repo_full_name } from './get_repo_full_name.js'
+import { get_repo_id } from './get_repo_id.js'
 import { upsert_repo } from './upsert_repo.js'
 
 let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
@@ -105,8 +106,3 @@ let task_API_requests_per_day = Cron('57 59 23 * * *', { timezone: 'Asia/Jakarta
    await send_to_telegram(log_message)
    await pgv.set('visitor_count', 0)
 })
-
-const get_repo_id = async (sql, repo_full_name) => {
-   const [{ id: repo_id }] = await sql`SELECT id FROM repository WHERE full_name = ${repo_full_name}` // https://github.com/porsager/postgres#usage
-   return repo_id
-}
