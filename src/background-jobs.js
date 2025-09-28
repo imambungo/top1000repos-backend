@@ -13,18 +13,12 @@ const pgv = persistent_global_variable(sql)
 import { send_to_telegram } from './lib/send_to_telegram.js'
 
 import { github_api_fetch_options, github_api_version } from './github_api_config.js'
+import { get_repo_new_name } from './github_api.js'
 
 import { upsert_repo } from './upsert_repo.js'
 
 let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
    if (G_fetch_quota > 0) {
-      const get_repo_new_name = async (repo_full_name) => {  // When the name of the repo or owner is changed, the search API can't detect the new name.
-         const url = `https://api.github.com/repos/${repo_full_name}`
-         const response = await fetch(url, github_api_fetch_options)
-         const data = await response.json()
-         return data.full_name
-      }
-
       if (await pgv.get('server_last_active_date') != today()) { // in UTC: https://stackoverflow.com/a/74234498/9157799 | different SQL statement should be splitted: https://github.com/porsager/postgres/issues/86#issuecomment-668217732
          pgv.set('repo_daily_fetch_count', 0)
          pgv.set('top_5_closed_pr_daily_fetch_count', 0)
