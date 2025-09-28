@@ -1,11 +1,6 @@
 import Cron from 'croner' // https://www.npmjs.com/package/croner
 import { today, a_year_ago } from './lib/date.js'
 
-let G_fetch_quota = 10 // fetch quota per minute | G marks a global variable
-let task1 = Cron('* * * * *', () => { // every minute, reset fetch quota
-   G_fetch_quota = 10
-});
-
 import sql from './config/db.js' // https://github.com/porsager/postgres#usage
 import persistent_global_variable from './lib/persistent_global_variable.js'
 const pgv = persistent_global_variable(sql)
@@ -24,6 +19,11 @@ import { clear_outdated_repos } from './clear_outdated_repos.js'
 import { get_repo_full_name } from './get_repo_full_name.js'
 import { get_repo_id } from './get_repo_id.js'
 import { upsert_repo } from './upsert_repo.js'
+
+let G_fetch_quota = 10 // fetch quota per minute | G marks a global variable
+let task_reset_fetch_quota = Cron('* * * * *', () => { // every minute
+   G_fetch_quota = 10
+})
 
 let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
    if (G_fetch_quota > 0) {
