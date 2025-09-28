@@ -27,8 +27,8 @@ let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async
          pgv.set('server_last_active_date', today())
       } else if (await pgv.get('repo_daily_fetch_count') < 10) { // fetch repos and stuff
          const clear_outdated_repos = async (sql, date) => {
-            const deletedRepos = await sql`DELETE FROM repository WHERE last_verified_at < ${date} RETURNING *;`
-            console.log(`cleared ${deletedRepos.length} outdated repos`)
+            const deleted_repos = await sql`DELETE FROM repository WHERE last_verified_at < ${date} RETURNING *;`
+            console.log(`cleared ${deleted_repos.length} outdated repos`)
          }
 
          const page_to_fetch = await pgv.get('repo_daily_fetch_count') + 1
