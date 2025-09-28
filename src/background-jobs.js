@@ -14,6 +14,8 @@ import { send_to_telegram } from './lib/send_to_telegram.js'
 
 import { github_api_fetch_options, github_api_version } from './github_api_fetch_options.js';
 
+import { upsert_repo } from './upsert_repo.js'
+
 let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
    if (G_fetch_quota > 0) {
       const get_repo_new_name = async (repo_full_name) => {  // When the name of the repo or owner is changed, the search API can't detect the new name.
@@ -34,28 +36,6 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
             const response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`, github_api_fetch_options); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
             const data = await response.json();
             return data
-         }
-
-         const upsert_repo = async (sql, repo) => {
-            const { id, full_name, html_url, description, stargazers_count, open_issues_count, archived, topics, has_issues } = repo
-            const license_key = repo.license ? repo.license.key : null
-            const last_commit_date = repo.pushed_at.slice(0, 10) // slice 2022-09-14 from 2022-09-14T23:19:32Z
-            const owner_avatar_url = repo.owner.avatar_url
-            const last_verified_at = new Date().toISOString().slice(0, 10) // https://stackoverflow.com/a/35922073/9157799
-         
-            repo = {
-               id, full_name, html_url, description, stargazers_count, open_issues_count, archived, topics, has_issues,
-               license_key,
-               last_commit_date,
-               owner_avatar_url,
-               last_verified_at
-            }
-            await sql`
-               INSERT INTO repository
-                  ${sql(repo)}            -- https://github.com/porsager/postgres#dynamic-inserts
-               ON CONFLICT (id) DO UPDATE
-                  SET ${sql(repo)}        -- https://github.com/porsager/postgres#dynamic-columns-in-updates
-            ` // https://stackoverflow.com/a/1109198/9157799
          }
 
          const clear_outdated_repos = async (sql, date) => {
