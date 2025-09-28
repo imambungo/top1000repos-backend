@@ -12,7 +12,7 @@ const pgv = persistent_global_variable(sql)
 
 import { send_to_telegram } from './lib/send_to_telegram.js'
 
-import { github_api_fetch_options } from './github_api_fetch_options.js';
+import { github_api_fetch_options, github_api_version } from './github_api_fetch_options.js';
 
 let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
    if (G_fetch_quota > 0) {
@@ -157,14 +157,15 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
    }
 })
 
-let taskCheckGithubApiVersions = Cron('59 4 * * *', async () =>  { // “At 04:59.” | with 10 fetch per minute, 2000 need 200 minute or 3 hr 20 min. | https://crontab.guru/#59_4_*_*_*
-   console.log(`current GitHub API version: ${githubApiVersion}`)
+let task_check_github_api_versions = Cron('59 4 * * *', async () =>  { // “At 04:59.” | with 10 fetch per minute, 2000 need 200 minute or 3 hr 20 min. | https://crontab.guru/#59_4_*_*_*
+   console.log(`current GitHub API version: ${github_api_version}`)
    const fetch_github_api_versions = async () => {
-      const response = await fetch(`https://api.github.com/versions`, github_api_fetch_options); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
+      const response = await fetch(`https://api.github.com/versions`, github_api_fetch_options); // https://docs.github.com/en/rest/meta/meta?apiVersion=2022-11-28#get-all-api-versions
       const data = await response.json();
       return data
    }
-   console.log(await fetch_github_api_versions())
+   const supported_api_versions = await fetch_github_api_versions()
+   console.log(`supported GitHub API versions: ${supported_api_versions.join(', ')}`)
 })
 
 let task_API_requests_per_day = Cron('57 59 23 * * *', { timezone: 'Asia/Jakarta' }, async () => {  // At 23:59:57
