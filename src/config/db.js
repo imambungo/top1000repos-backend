@@ -1,6 +1,3 @@
-import * as dotenv from 'dotenv' // see https://www.npmjs.com/package/dotenv#usage
-dotenv.config()
-
 import postgres from 'postgres' // https://github.com/porsager/postgres
 
 const create_sql_wrapper = async () => { // because of ECONNRESET | https://github.com/porsager/postgres/issues/179

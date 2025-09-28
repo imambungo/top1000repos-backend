@@ -2,8 +2,6 @@
 import express from 'express' // no need to use require: https://stackoverflow.com/a/64655153/9157799
 const server = express()
 
-import 'dotenv/config' // https://www.npmjs.com/package/dotenv#%EF%B8%8F-usage
-
 const port = process.env.PORT
 server.listen(port, () => {
 	console.log(`server listening on port ${port} (${process.env.HOST}:${port})`)

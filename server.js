@@ -1,3 +1,5 @@
+import 'dotenv/config' // https://www.npmjs.com/package/dotenv#%EF%B8%8F-usage
+
 import './src/background-jobs.js'
 
 import sql from './src/config/db.js' // https://github.com/porsager/postgres#usage
