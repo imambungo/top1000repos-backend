@@ -12,7 +12,7 @@ const pgv = persistent_global_variable(sql)
 
 import { send_to_telegram } from './lib/send_to_telegram.js'
 
-import { github_api_fetch_options, github_api_version } from './github_api_fetch_options.js'
+import { github_api_fetch_options, github_api_version } from './github_api_config.js'
 
 import { upsert_repo } from './upsert_repo.js'
 
