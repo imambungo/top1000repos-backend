@@ -15,6 +15,7 @@ import { send_to_telegram } from './lib/send_to_telegram.js'
 import { github_api_fetch_options, github_api_version } from './github_api_config.js'
 import { fetch_repos, get_repo_new_name } from './github_api.js'
 
+import { clear_outdated_repos } from './clear_outdated_repos.js'
 import { upsert_repo } from './upsert_repo.js'
 
 let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
@@ -26,11 +27,6 @@ let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async
          pgv.set('top_5_open_issues_daily_fetch_count', 0)
          pgv.set('server_last_active_date', today())
       } else if (await pgv.get('repo_daily_fetch_count') < 10) { // fetch repos and stuff
-         const clear_outdated_repos = async (sql, date) => {
-            const deleted_repos = await sql`DELETE FROM repository WHERE last_verified_at < ${date} RETURNING *;`
-            console.log(`cleared ${deleted_repos.length} outdated repos`)
-         }
-
          const page_to_fetch = await pgv.get('repo_daily_fetch_count') + 1
          const { items: repos } = await fetch_repos(page_to_fetch) // https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=1&per_page=100
          G_fetch_quota--
