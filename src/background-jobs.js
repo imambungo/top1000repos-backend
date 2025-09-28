@@ -18,13 +18,13 @@ const apiRequestHeaders = {  // https://trello.com/c/MgI1fvc5 | https://develope
    'User-Agent': 'imambungo',                                // https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#user-agent-required
    'Authorization': `Bearer ${process.env.GITHUB_API_TOKEN}` // https://docs.github.com/en/rest/overview/authenticating-to-the-rest-api?apiVersion=2022-11-28
 }
-const fetchOptions = {headers: apiRequestHeaders} // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
+const github_api_fetch_options = {headers: apiRequestHeaders} // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
 
 let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
    if (G_fetch_quota > 0) {
       const get_repo_new_name = async (repo_full_name) => {  // When the name of the repo or owner is changed, the search API can't detect the new name.
          const url = `https://api.github.com/repos/${repo_full_name}`
-         const response = await fetch(url, fetchOptions)
+         const response = await fetch(url, github_api_fetch_options)
          const data = await response.json()
          return data.full_name
       }
@@ -37,7 +37,7 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
          pgv.set('server_last_active_date', today())
       } else if (await pgv.get('repo_daily_fetch_count') < 10) { // fetch repos and stuff
          const fetch_repos = async (page) => {
-            const response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`, fetchOptions); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
+            const response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`, github_api_fetch_options); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
             const data = await response.json();
             return data
          }
@@ -85,7 +85,7 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
       } else if (await pgv.get('top_5_closed_pr_daily_fetch_count') < 1000) { // fetch top 5 CLOSED PR and stuff
          const fetch_top_5_closed_PR_since = async (repo_full_name, date) => { // fetch top 5 closed PR of the last 365 days
             const url = `https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:pr%20closed:%3E${date}%20repo:${repo_full_name}`
-            const response = await fetch(url, fetchOptions) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
+            const response = await fetch(url, github_api_fetch_options) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
             const data = await response.json()
             if (!response.ok) { // https://stackoverflow.com/a/38236296/9157799
                // MAYBE TODO: When
@@ -125,7 +125,7 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
       } else if (await pgv.get('top_5_closed_issues_daily_fetch_count') < 1000) { // fetch top 5 CLOSED ISSUES and stuff
          const fetch_top_5_closed_issues_since = async (repo_full_name, date) => { // fetch top 5 closed issues of the last 365 days
             const url = `https://api.github.com/search/issues?sort=reactions-%2B1&per_page=5&q=state:closed%20type:issue%20closed:%3E${date}%20repo:${repo_full_name}`
-            const response = await fetch(url, fetchOptions) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
+            const response = await fetch(url, github_api_fetch_options) // https://trello.com/c/aPVztlM3/8-fetch-api-get-top-5-closed-possibly-merged-prs-of-the-last-12-months
             const data = await response.json()
             if (!response.ok) { // https://stackoverflow.com/a/38236296/9157799
                let error_message = 'ERROR'
@@ -166,7 +166,7 @@ let taskFetchGithubApi = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async ()
 let taskCheckGithubApiVersions = Cron('59 4 * * *', async () =>  { // “At 04:59.” | with 10 fetch per minute, 2000 need 200 minute or 3 hr 20 min. | https://crontab.guru/#59_4_*_*_*
    console.log(`current GitHub API version: ${githubApiVersion}`)
    const fetch_github_api_versions = async () => {
-      const response = await fetch(`https://api.github.com/versions`, fetchOptions); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
+      const response = await fetch(`https://api.github.com/versions`, github_api_fetch_options); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
       const data = await response.json();
       return data
    }
