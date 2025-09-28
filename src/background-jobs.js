@@ -48,7 +48,7 @@ let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async
             ;( { total_count: num_of_closed_pr_since_1_year, items: top_5_closed_pr } = await fetch_top_5_closed_PR_since(repo_full_name, a_year_ago()) ) // https://stackoverflow.com/q/59416204/9157799
          } catch (e) {
             console.log(e)
-            const repo_new_name = await get_repo_new_name(repo_full_name)
+            const repo_new_name = await get_repo_new_name(repo_full_name) // When the name of the repo or owner is changed, the search API can't detect the new name.
             await sql`UPDATE repository SET full_name = ${repo_new_name} WHERE full_name = ${repo_full_name}`
             return
          }
@@ -67,7 +67,7 @@ let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async
             ;( { total_count: num_of_closed_issues_since_1_year, items: top_5_closed_issues } = await fetch_top_5_closed_issues_since(repo_full_name, a_year_ago()) ) // https://stackoverflow.com/q/59416204/9157799
          } catch (e) {
             console.log(e)
-            const repo_new_name = await get_repo_new_name(repo_full_name)
+            const repo_new_name = await get_repo_new_name(repo_full_name) // When the name of the repo or owner is changed, the search API can't detect the new name.
             await sql`UPDATE repository SET full_name = ${repo_new_name} WHERE full_name = ${repo_full_name}`
             return
          }
