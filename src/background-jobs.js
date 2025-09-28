@@ -13,7 +13,7 @@ const pgv = persistent_global_variable(sql)
 import { send_to_telegram } from './lib/send_to_telegram.js'
 
 import { github_api_fetch_options, github_api_version } from './github_api_config.js'
-import { get_repo_new_name } from './github_api.js'
+import { fetch_repos, get_repo_new_name } from './github_api.js'
 
 import { upsert_repo } from './upsert_repo.js'
 
@@ -26,12 +26,6 @@ let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async
          pgv.set('top_5_open_issues_daily_fetch_count', 0)
          pgv.set('server_last_active_date', today())
       } else if (await pgv.get('repo_daily_fetch_count') < 10) { // fetch repos and stuff
-         const fetch_repos = async (page) => {
-            const response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`, github_api_fetch_options); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
-            const data = await response.json();
-            return data
-         }
-
          const clear_outdated_repos = async (sql, date) => {
             const deletedRepos = await sql`DELETE FROM repository WHERE last_verified_at < ${date} RETURNING *;`
             console.log(`cleared ${deletedRepos.length} outdated repos`)
