@@ -50,6 +50,7 @@ export const fetch_top_5_closed_PR_since = async (repo_full_name, date) => { // 
 export const get_code_size = async (repo_full_name) => {
    const url = `https://api.github.com/repos/${repo_full_name}/languages` // https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-languages
    const response = await fetch(url)
+   // console.log(response.headers) // https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28#checking-the-status-of-your-rate-limit
    const data = await response.json()
 
    let total_bytes = 0
