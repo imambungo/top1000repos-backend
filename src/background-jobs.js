@@ -22,7 +22,7 @@ import { get_repo_full_name } from './get_repo_full_name.js'
 import { get_repo_id } from './get_repo_id.js'
 import { upsert_repo } from './upsert_repo.js'
 
-let task_fetch_github_api = Cron('*/10 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 8 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
+let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
    // const response = await fetch('https://api.github.com/rate_limit', github_api_fetch_options) // https://docs.github.com/en/rest/rate-limit/rate-limit?apiVersion=2022-11-28#get-rate-limit-status-for-the-authenticated-user
    // const data = await response.json()
    // console.log(data)
