@@ -22,7 +22,7 @@ import { get_repo_full_name } from './get_repo_full_name.js'
 import { get_repo_id } from './get_repo_id.js'
 import { upsert_repo } from './upsert_repo.js'
 
-let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 9 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
+let task_fetch_github_api = Cron('*/8 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 8 second | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
    if (await pgv.get('server_last_active_date') != today()) { // in UTC: https://stackoverflow.com/a/74234498/9157799 | different SQL statement should be splitted: https://github.com/porsager/postgres/issues/86#issuecomment-668217732
       pgv.set('repo_daily_fetch_count', 0)
       pgv.set('top_5_closed_pr_daily_fetch_count', 0)
