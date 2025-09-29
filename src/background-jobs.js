@@ -78,14 +78,14 @@ let task_fetch_github_api = Cron('*/8 * * * * *', { timezone: 'Etc/UTC' }, async
       let total_thumbs_up_of_top_5_closed_issues_since_1_year = 0
       top_5_closed_issues.forEach(issue => total_thumbs_up_of_top_5_closed_issues_since_1_year += issue.reactions['+1'])
       await pgv.increment('top_5_closed_issues_daily_fetch_count')
-      if (repo_number % 200 == 0) console.log(`fetched top 5 closed issues (repo ${repo_number})`)
+      if (repo_number % 100 == 0) console.log(`fetched top 5 closed issues (repo ${repo_number})`)
       await sql`UPDATE repository SET num_of_closed_issues_since_1_year = ${num_of_closed_issues_since_1_year}, total_thumbs_up_of_top_5_closed_issues_since_1_year = ${total_thumbs_up_of_top_5_closed_issues_since_1_year} WHERE id = ${repository_id};`
    } else if (await pgv.get('code_size_daily_fetch_count') < 1000) { // fetch code size and stuff
       const repo_number = await pgv.get('code_size_daily_fetch_count') + 1
       const repo_full_name = await get_repo_full_name(sql, repo_number)
       const repo_code_size = await get_code_size(repo_full_name) // in bytes
       await pgv.increment('code_size_daily_fetch_count')
-      if (repo_number % 200 == 0) console.log(`fetched code size (repo ${repo_number})`)
+      if (repo_number % 100 == 0) console.log(`fetched code size (repo ${repo_number})`)
       const repository_id = await get_repo_id(sql, repo_full_name)
       await sql`UPDATE repository SET code_size = ${repo_code_size} WHERE id = ${repository_id};`
    } else if (await pgv.get('project_size_daily_fetch_count') < 1000) { // fetch project size and stuff
@@ -93,7 +93,7 @@ let task_fetch_github_api = Cron('*/8 * * * * *', { timezone: 'Etc/UTC' }, async
       const repo_full_name = await get_repo_full_name(sql, repo_number)
       const repo_project_size = await get_project_size(repo_full_name) // in bytes
       await pgv.increment('project_size_daily_fetch_count')
-      if (repo_number % 200 == 0) console.log(`fetched project size (repo ${repo_number})`)
+      if (repo_number % 100 == 0) console.log(`fetched project size (repo ${repo_number})`)
       const repository_id = await get_repo_id(sql, repo_full_name)
       await sql`UPDATE repository SET project_size = ${repo_project_size} WHERE id = ${repository_id};`
    }
