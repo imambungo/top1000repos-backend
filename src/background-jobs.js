@@ -93,15 +93,16 @@ let task_fetch_github_api = Cron('*/6 * * * * *', { timezone: 'Etc/UTC' }, async
       if (repo_number % 100 == 0) console.log(`fetched code size (repo ${repo_number})`)
       const repository_id = await get_repo_id(sql, repo_full_name)
       await sql`UPDATE repository SET code_size = ${repo_code_size} WHERE id = ${repository_id};`
-   } else if (await pgv.get('project_size_daily_fetch_count') < 1000) { // fetch project size and stuff
-      const repo_number = await pgv.get('project_size_daily_fetch_count') + 1
-      const repo_full_name = await get_repo_full_name(sql, repo_number)
-      await pgv.increment('project_size_daily_fetch_count') // take some risk
-      const repo_project_size = await get_project_size(repo_full_name) // in bytes
-      if (repo_number % 100 == 0) console.log(`fetched project size (repo ${repo_number})`)
-      const repository_id = await get_repo_id(sql, repo_full_name)
-      await sql`UPDATE repository SET project_size = ${repo_project_size} WHERE id = ${repository_id};`
    }
+   // } else if (await pgv.get('project_size_daily_fetch_count') < 1000) { // fetch project size and stuff
+   //    const repo_number = await pgv.get('project_size_daily_fetch_count') + 1
+   //    const repo_full_name = await get_repo_full_name(sql, repo_number)
+   //    await pgv.increment('project_size_daily_fetch_count') // take some risk
+   //    const repo_project_size = await get_project_size(repo_full_name) // in bytes
+   //    if (repo_number % 100 == 0) console.log(`fetched project size (repo ${repo_number})`)
+   //    const repository_id = await get_repo_id(sql, repo_full_name)
+   //    await sql`UPDATE repository SET project_size = ${repo_project_size} WHERE id = ${repository_id};`
+   // }
 })
 
 let task_check_github_api_versions = Cron('0 0 * * *', { timezone: 'Asia/Jakarta' }, async () =>  { // “At 00:00.” | https://crontab.guru/#0_0_*_*_*
