@@ -49,7 +49,7 @@ export const fetch_top_5_closed_PR_since = async (repo_full_name, date) => { // 
 
 export const get_code_size = async (repo_full_name) => {
    const url = `https://api.github.com/repos/${repo_full_name}/languages` // https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-languages
-   const response = await fetch(url)
+   const response = await fetch(url, github_api_fetch_options)
    // console.log(response.headers) // https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28#checking-the-status-of-your-rate-limit
    const data = await response.json()
 
@@ -64,7 +64,7 @@ export const get_code_size = async (repo_full_name) => {
 export const get_project_size = async (repo_full_name) => {
    const get_default_branch = async (repo_full_name) => {
       const url = `https://api.github.com/repos/${repo_full_name}`
-      const response = await fetch(url)
+      const response = await fetch(url, github_api_fetch_options)
       const data = await response.json()
       return data.default_branch
    }
@@ -74,7 +74,7 @@ export const get_project_size = async (repo_full_name) => {
    const get_tree_size = async (repo_full_name, tree, parent) => {
       const recursive_tree = async (repo_full_name, tree) => {
          const url = `https://api.github.com/repos/${repo_full_name}/git/trees/${tree}?recursive=1` // https://docs.github.com/en/rest/git/trees?apiVersion=2022-11-28#get-a-tree
-         const response = await fetch(url)
+         const response = await fetch(url, github_api_fetch_options)
          const data = await response.json()
          return data
       }
@@ -93,7 +93,7 @@ export const get_project_size = async (repo_full_name) => {
          console.log(`${parent} (truncated)`)
          const non_recursive_tree = async (repo_full_name, tree) => {
             const url = `https://api.github.com/repos/${repo_full_name}/git/trees/${tree}` // https://docs.github.com/en/rest/git/trees?apiVersion=2022-11-28#get-a-tree
-            const response = await fetch(url)
+            const response = await fetch(url, github_api_fetch_options)
             const data = await response.json()
             return data
          }
