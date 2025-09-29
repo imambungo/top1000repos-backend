@@ -74,6 +74,8 @@ export const get_project_size = async (repo_full_name) => {
 
    let total_api_call = 0
    const get_tree_size = async (repo_full_name, tree, parent) => {
+      if (total_api_call >= 200) return 0 // TODO
+
       const recursive_tree = async (repo_full_name, tree) => {
          const url = `https://api.github.com/repos/${repo_full_name}/git/trees/${tree}?recursive=1` // https://docs.github.com/en/rest/git/trees?apiVersion=2022-11-28#get-a-tree
          const response = await fetch(url, github_api_fetch_options)
@@ -120,6 +122,14 @@ export const get_project_size = async (repo_full_name) => {
       }
    }
    const total_size = await get_tree_size(repo_full_name, default_branch, `${default_branch}:`)
+
+   if (total_api_call >= 200) { // TODO
+      const log_message = `Abort ${repo_full_name}: ${total_api_call} API calls already used`
+      console.log(log_message)
+      send_to_telegram(log_message)
+      return total_size
+   }
+
    if (total_api_call > 1) {
       const log_message = `Total API call for ${repo_full_name}: ${total_api_call}`
       console.log(log_message)
