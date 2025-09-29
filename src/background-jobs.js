@@ -13,7 +13,8 @@ import {
    fetch_top_5_closed_issues_since,
    fetch_top_5_closed_PR_since,
    fetch_repo_new_name,
-   get_code_size
+   get_code_size,
+   get_project_size
 } from './github_api.js'
 
 import { clear_outdated_repos } from './clear_outdated_repos.js'
@@ -87,6 +88,14 @@ let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async
       if (repo_number % 200 == 0) console.log(`fetched code size (repo ${repo_number})`)
       const repository_id = await get_repo_id(sql, repo_full_name)
       await sql`UPDATE repository SET code_size = ${repo_code_size} WHERE id = ${repository_id};`
+   } else if (await pgv.get('project_size_daily_fetch_count') < 1000) { // fetch project size and stuff
+      const repo_number = await pgv.get('project_size_daily_fetch_count') + 1
+      const repo_full_name = await get_repo_full_name(sql, repo_number)
+      const repo_project_size = await get_project_size(repo_full_name) // in bytes
+      await pgv.increment('project_size_daily_fetch_count')
+      if (repo_number % 200 == 0) console.log(`fetched project size (repo ${repo_number})`)
+      const repository_id = await get_repo_id(sql, repo_full_name)
+      await sql`UPDATE repository SET project_size = ${repo_project_size} WHERE id = ${repository_id};`
    }
 })
 
