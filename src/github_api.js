@@ -1,5 +1,7 @@
 import { github_api_fetch_options } from "./github_api_config.js"
 
+// The search API has custom rate limit, 30 requests per minute: https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#rate-limit
+
 export const fetch_repos = async (page) => {
    const response = await fetch(`https://api.github.com/search/repositories?q=stars%3A%3E1000&sort=stars&page=${page}&per_page=100`, github_api_fetch_options); // https://developer.mozilla.org/en-US/docs/Web/API/fetch#syntax
    const data = await response.json();
