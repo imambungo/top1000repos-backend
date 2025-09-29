@@ -8,7 +8,8 @@ await sql`
 			        ('repo_daily_fetch_count', '0'),
 					  ('top_5_closed_pr_daily_fetch_count', '0'),
 					  ('top_5_closed_issues_daily_fetch_count', '0'),
-					  ('top_5_open_issues_daily_fetch_count', '0'),
+					  ('code_size_daily_fetch_count', '0'),
+					  ('project_size_daily_fetch_count', '0'),
 					  ('visitor_count', '0');
 `
 
