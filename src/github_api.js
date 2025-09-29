@@ -45,7 +45,20 @@ export const fetch_top_5_closed_PR_since = async (repo_full_name, date) => { // 
    return data
 }
 
-export const get_repo_new_name = async (repo_full_name) => {  // When the name of the repo or owner is changed, the search API can't detect the new name.
+export const fetch_code_size = async (repo_full_name) => {
+   const url = `https://api.github.com/repos/${repo_full_name}/languages` // https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-languages
+   const response = await fetch(url)
+   const data = await response.json()
+
+   let total_bytes = 0
+   for (const [language, bytes] of Object.entries(data)) { // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries
+      total_bytes += bytes
+   }
+
+   return total_bytes
+}
+
+export const fetch_repo_new_name = async (repo_full_name) => {  // When the name of the repo or owner is changed, the search API can't detect the new name.
    const url = `https://api.github.com/repos/${repo_full_name}`
    const response = await fetch(url, github_api_fetch_options)
    const data = await response.json()
