@@ -45,7 +45,7 @@ export const fetch_top_5_closed_PR_since = async (repo_full_name, date) => { // 
    return data
 }
 
-export const fetch_code_size = async (repo_full_name) => {
+export const get_code_size = async (repo_full_name) => {
    const url = `https://api.github.com/repos/${repo_full_name}/languages` // https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-languages
    const response = await fetch(url)
    const data = await response.json()

@@ -12,8 +12,8 @@ import {
    fetch_repos,
    fetch_top_5_closed_issues_since,
    fetch_top_5_closed_PR_since,
-   fetch_code_size,
-   fetch_repo_new_name
+   fetch_repo_new_name,
+   get_code_size
 } from './github_api.js'
 
 import { clear_outdated_repos } from './clear_outdated_repos.js'
@@ -91,7 +91,7 @@ let task_fetch_github_api = Cron('*/9 * * * * *', { timezone: 'Etc/UTC' }, async
       } else if (await pgv.get('code_size_daily_fetch_count') < 1000) { // fetch code size and stuff
          const repo_number = await pgv.get('code_size_daily_fetch_count') + 1
          const repo_full_name = await get_repo_full_name(sql, repo_number)
-         const repo_code_size = await fetch_code_size(repo_full_name) // in bytes
+         const repo_code_size = await get_code_size(repo_full_name) // in bytes
          G_fetch_quota--
          await pgv.increment('code_size_daily_fetch_count')
          if (repo_number % 200 == 0) console.log(`fetched code size (repo ${repo_number})`)
