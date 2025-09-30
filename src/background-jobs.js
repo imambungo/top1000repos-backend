@@ -51,11 +51,7 @@ let task_fetch_github_api = Cron('*/6 * * * * *', { timezone: 'Etc/UTC' }, async
       }
    } else if (await pgv.get('top_5_closed_pr_daily_fetch_count') < 1000) { // fetch top 5 CLOSED PR and stuff
       const repo_number = await pgv.get('top_5_closed_pr_daily_fetch_count') + 1
-      try {
-         const repo_full_name = await get_repo_full_name(sql, repo_number)
-      } catch (e) {
-         throw `${e}`
-      }
+      const repo_full_name = await get_repo_full_name(sql, repo_number)
       let num_of_closed_pr_since_1_year, top_5_closed_pr // https://stackoverflow.com/q/59416204/9157799
       try {
          ;( { total_count: num_of_closed_pr_since_1_year, items: top_5_closed_pr } = await fetch_top_5_closed_PR_since(repo_full_name, a_year_ago()) ) // https://stackoverflow.com/q/59416204/9157799
