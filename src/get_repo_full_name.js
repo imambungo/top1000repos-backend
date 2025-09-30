@@ -9,6 +9,6 @@ export const get_repo_full_name = async (sql, repo_number) => {
       `
       return full_name
    } catch (e) {
-      console.error(`Error in get_repo_full_name(sql, repo_number: ${repo_number}):\n${e.message}\nCheck if repository is actually 1000 rows.`)
+      throw `Error in get_repo_full_name(sql, repo_number: ${repo_number}):\n${e.message}\nCheck if repository is actually 1000 rows.`
    }
 }
