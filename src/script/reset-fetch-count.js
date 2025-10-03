@@ -1,3 +1,5 @@
+import 'dotenv/config' // https://www.npmjs.com/package/dotenv#%EF%B8%8F-usage
+
 // https://github.com/porsager/postgres#usage
 import sql from './../config/db.js'
 import persistent_global_variable from './../lib/persistent_global_variable.js'
@@ -9,4 +11,4 @@ await pgv.set('top_5_closed_issues_daily_fetch_count', 0)
 await pgv.set('code_size_daily_fetch_count', 0)
 await pgv.set('project_size_daily_fetch_count', 0)
 
-throw 'SUCCESS! THIS IS NOT AN ERROR!' // creating database instance cause the script to persist | https://stackoverflow.com/a/7223319/9157799
+throw Error('SUCCESS! THIS IS NOT AN ERROR!') // creating database instance cause the script to persist | https://stackoverflow.com/a/7223319/9157799
