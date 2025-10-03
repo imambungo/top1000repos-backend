@@ -22,6 +22,16 @@ import { get_repo_full_name } from './get_repo_full_name.js'
 import { get_repo_id } from './get_repo_id.js'
 import { upsert_repo } from './upsert_repo.js'
 
+await Promise.all([ // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
+   pgv.set_if_not_exists('server_last_active_date', '2000-01-01'), // be careful, make sure to double quote strings so it's a valid JSON
+   pgv.set_if_not_exists('repo_daily_fetch_count', 0),
+   pgv.set_if_not_exists('top_5_closed_pr_daily_fetch_count', 0),
+   pgv.set_if_not_exists('top_5_closed_issues_daily_fetch_count', 0),
+   pgv.set_if_not_exists('code_size_daily_fetch_count', 0),
+   pgv.set_if_not_exists('project_size_daily_fetch_count', 0),
+   pgv.set_if_not_exists('visitor_count', 0)
+])
+
 let task_fetch_github_api = Cron('*/6 * * * * *', { timezone: 'Etc/UTC' }, async () => {  // every 6 seconds | https://stackoverflow.com/a/59800039/9157799 | https://crontab.guru/
    // const response = await fetch('https://api.github.com/rate_limit', github_api_fetch_options) // https://docs.github.com/en/rest/rate-limit/rate-limit?apiVersion=2022-11-28#get-rate-limit-status-for-the-authenticated-user
    // const data = await response.json()

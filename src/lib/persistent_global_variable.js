@@ -37,6 +37,7 @@ const persistent_global_variable = async sql => {
          }
       },
       set: async (name, value) => await sql`UPDATE persistent_global_variable SET value = ${JSON.stringify(value)} WHERE name = ${name}`,
+      set_if_not_exists: async (name, value) => await sql`INSERT INTO persistent_global_variable (name, value) VALUES (${name}, ${JSON.stringify(value)}) ON CONFLICT (name) DO NOTHING`,
       increment: async name => await sql`UPDATE persistent_global_variable SET value = value::int + 1 WHERE name = ${name}` // https://stackoverflow.com/q/10233298/9157799#comment17889893_10233360
    }
 }
