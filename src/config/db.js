@@ -7,7 +7,7 @@ const create_sql_wrapper = async () => { // because of ECONNRESET | https://gith
    await pass_by_reference.sql`SELECT 1;` // if the password is wrong, throw error as early as possible. Postgres.js doesn't check the validity of the options right away. | https://stackoverflow.com/a/3670000/9157799
 
    const sql_wrapper = (...args) => { // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates
-      return pass_by_reference.sql(...args) // FYI: The async and await can be omitted. In fact, they should be omitted: https://github.com/porsager/postgres?tab=readme-ov-file#dynamic-inserts
+      return pass_by_reference.sql(...args) // FYI: The async and await can be omitted. In fact, they should be omitted because `sql` doesn't return a promise when used for dynamic inserts: https://github.com/porsager/postgres?tab=readme-ov-file#dynamic-inserts
    }
 
    // search in IDE for "sql."
