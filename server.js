@@ -5,7 +5,7 @@ import './src/background-jobs.js'
 import sql from './src/config/db.js' // https://github.com/porsager/postgres#usage
 import server from './src/config/server.js'
 import persistent_global_variable from './src/lib/persistent_global_variable.js'
-const pgv = persistent_global_variable(sql)
+const pgv = await persistent_global_variable(sql)
 
 import { send_to_telegram } from './src/lib/send_to_telegram.js'
 

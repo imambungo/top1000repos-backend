@@ -3,7 +3,7 @@ import { today, a_year_ago } from './lib/date.js'
 
 import sql from './config/db.js' // https://github.com/porsager/postgres#usage
 import persistent_global_variable from './lib/persistent_global_variable.js'
-const pgv = persistent_global_variable(sql)
+const pgv = await persistent_global_variable(sql)
 
 import { send_to_telegram } from './lib/send_to_telegram.js'
 

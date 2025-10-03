@@ -21,8 +21,3 @@ CREATE TABLE "repository" (
   "project_size" bigint,
   "repo_size" bigint NOT NULL
 );
-
-CREATE TABLE "persistent_global_variable" (
-  "name" varchar PRIMARY KEY,
-  "value" varchar NOT NULL
-);
